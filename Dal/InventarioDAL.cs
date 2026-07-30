@@ -1,0 +1,199 @@
+﻿using Dal;
+using Entities;
+using Microsoft.IdentityModel.Protocols;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using Microsoft.Data.SqlClient;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DAL
+{
+    public class InventarioDAL
+    {
+        private readonly ConexionBD _bd;
+        public InventarioDAL(ConexionBD bd)
+        {
+            _bd = bd;
+        }
+
+        public List<InventarioMovimiento> ListarMovimientos()
+        {
+            var lista = new List<InventarioMovimiento>();
+            using (SqlConnection conn = _bd.ObtenerConexion())
+            {
+                string query = "SELECT * FROM InventarioMovimiento";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    lista.Add(new InventarioMovimiento
+                    {
+                        MovimientoId = (int)reader["MovimientoId"],
+                        ProductoId = (int)reader["ProductoId"],
+                        TipoMovimiento = reader["TipoMovimiento"].ToString(),
+                        Cantidad = (int)reader["Cantidad"],
+                        FechaMovimiento = (DateTime)reader["FechaMovimiento"],
+                        Referencia = reader["Referencia"].ToString()
+                    });
+                }
+            }
+            return lista;
+        }
+
+        public List<InventarioMovimiento> ListarMovimientos(int productoId)
+        {
+            var lista = new List<InventarioMovimiento>();
+            using (SqlConnection conn = _bd.ObtenerConexion())
+            {
+                string query = "SELECT * FROM InventarioMovimiento WHERE ProductoId=@ProductoId";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@ProductoId", productoId);
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    lista.Add(new InventarioMovimiento
+                    {
+                        MovimientoId = (int)reader["MovimientoId"],
+                        ProductoId = (int)reader["ProductoId"],
+                        TipoMovimiento = reader["TipoMovimiento"].ToString(),
+                        Cantidad = (int)reader["Cantidad"],
+                        FechaMovimiento = (DateTime)reader["FechaMovimiento"],
+                        Referencia = reader["Referencia"].ToString()
+                    });
+                }
+            }
+            return lista;
+        }
+
+        public InventarioMovimiento ObtenerPorId(int id)
+        {
+            InventarioMovimiento mov = null;
+            using (SqlConnection conn = _bd.ObtenerConexion())
+            {
+                string query = "SELECT * FROM InventarioMovimiento WHERE MovimientoId=@id";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@id", id);
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    mov = new InventarioMovimiento
+                    {
+                        MovimientoId = (int)reader["MovimientoId"],
+                        ProductoId = (int)reader["ProductoId"],
+                        TipoMovimiento = reader["TipoMovimiento"].ToString(),
+                        Cantidad = (int)reader["Cantidad"],
+                        FechaMovimiento = (DateTime)reader["FechaMovimiento"],
+                        Referencia = reader["Referencia"].ToString()
+                    };
+                }
+            }
+            return mov;
+        }
+
+        public int InsertarMovimiento(InventarioMovimiento mov)
+        {
+            using (SqlConnection conn = _bd.ObtenerConexion())
+            {
+                conn.Open();
+                SqlTransaction tx = conn.BeginTransaction();
+                try
+                {
+                    string query = @"INSERT INTO InventarioMovimiento (ProductoId,TipoMovimiento,Cantidad,FechaMovimiento,Referencia)
+                             VALUES (@Prod,@Tipo,@Cant,@Fecha,@Ref); SELECT SCOPE_IDENTITY();";
+                    SqlCommand cmd = new SqlCommand(query, conn, tx);
+                    cmd.Parameters.AddWithValue("@Prod", mov.ProductoId);
+                    cmd.Parameters.AddWithValue("@Tipo", mov.TipoMovimiento);
+                    cmd.Parameters.AddWithValue("@Cant", mov.Cantidad);
+                    cmd.Parameters.AddWithValue("@Fecha", mov.FechaMovimiento);
+                    cmd.Parameters.AddWithValue("@Ref", mov.Referencia ?? (object)DBNull.Value);
+                    int id = Convert.ToInt32(cmd.ExecuteScalar());
+
+                    tx.Commit();
+                    return id;
+                }
+                catch
+                {
+                    tx.Rollback();
+                    throw;
+                }
+            }
+        }
+
+
+        // KARDEX
+
+        public List<KardexItem> ObtenerKardexPorProducto(int productoId)
+        {
+            var lista = new List<KardexItem>();
+            int saldo = 0;
+
+            using (SqlConnection conn = _bd.ObtenerConexion())
+            {
+                string query = @"SELECT FechaMovimiento, TipoMovimiento, Cantidad, Referencia
+                         FROM InventarioMovimiento
+                         WHERE ProductoId=@Prod
+                         ORDER BY FechaMovimiento ASC";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@Prod", productoId);
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    string tipo = reader["TipoMovimiento"].ToString();
+                    int cantidad = (int)reader["Cantidad"];
+
+                    if (tipo == "Entrada")
+                        saldo += cantidad;
+                    else
+                        saldo -= cantidad;
+
+                    lista.Add(new KardexItem
+                    {
+                        Fecha = (DateTime)reader["FechaMovimiento"],
+                        TipoMovimiento = tipo,
+                        Cantidad = cantidad,
+                        Referencia = reader["Referencia"].ToString(),
+                        Saldo = saldo
+                    });
+                }
+            }
+            return lista;
+        }
+
+        public void InsertarKardex(KardexItem item)
+        {
+            using (SqlConnection conn = _bd.ObtenerConexion())
+            {
+                conn.Open();
+                SqlTransaction tx = conn.BeginTransaction();
+                try
+                {
+                    string query = @"INSERT INTO InventarioMovimiento (ProductoId,Fecha,TipoMovimiento,Cantidad,Referencia,Saldo)
+                             VALUES (@Prod,@Fecha,@Tipo,@Cant,@Ref,@Saldo)";
+                    SqlCommand cmd = new SqlCommand(query, conn, tx);
+                    cmd.Parameters.AddWithValue("@Prod", item.ProductoId);
+                    cmd.Parameters.AddWithValue("@Fecha", item.Fecha);
+                    cmd.Parameters.AddWithValue("@Tipo", item.TipoMovimiento);
+                    cmd.Parameters.AddWithValue("@Cant", item.Cantidad);
+                    cmd.Parameters.AddWithValue("@Ref", item.Referencia ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Saldo", item.Saldo);
+                    cmd.ExecuteNonQuery();
+
+                    tx.Commit();
+                }
+                catch
+                {
+                    tx.Rollback();
+                    throw;
+                }
+            }
+        }
+
+    }
+}
