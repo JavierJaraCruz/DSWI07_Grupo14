@@ -16,8 +16,8 @@ public class ConexionBD
     public ConexionBD(IConfiguration configuration)
     {
         // Lee la cadena de conexión desde appsettings.json
-        _cadena = configuration.GetConnectionString("TiendaDB")
-                  ?? throw new InvalidOperationException("No se encontró la cadena 'TiendaDB'.");
+        _cadena = configuration.GetConnectionString("burgos")
+                  ?? throw new InvalidOperationException("No se encontró la cadena 'burgos'.");
     }
 
     /// <summary>Devuelve una conexión NUEVA (aún cerrada).</summary>

@@ -10,12 +10,17 @@ namespace Services
 {
     public class CompraService
     {
-        private readonly CompraDAL compraDAL = new CompraDAL();
+        private readonly CompraDAL _compraDAL;
+
+        public CompraService(CompraDAL compraDAL)
+        {
+            _compraDAL = compraDAL;
+        }
 
         public int CrearCompra(int proveedorId, List<CompraDetalle> detalles)
-            => compraDAL.InsertarCompra(proveedorId, detalles);
+            => _compraDAL.InsertarCompra(proveedorId, detalles);
 
-        public List<CompraProveedor> ListarCompras() => compraDAL.ListarCompras();
+        public List<CompraProveedor> ListarCompras() => _compraDAL.ListarCompras();
 
     }
 }

@@ -10,17 +10,22 @@ namespace Services
 {
     public class KardexService
     {
-        private readonly InventarioDAL inventarioDAL = new InventarioDAL();
+        private readonly InventarioDAL _inventarioDAL;
+
+        public KardexService(InventarioDAL inventarioDAL)
+        {
+            _inventarioDAL = inventarioDAL;
+        }
 
         public List<KardexItem> ObtenerKardex(int productoId)
         {
-            return inventarioDAL.ObtenerKardexPorProducto(productoId);
+            return _inventarioDAL.ObtenerKardexPorProducto(productoId);
         }
 
 
-        public void InsertarKardex(KardexItem item) => inventarioDAL.InsertarKardex(item);
+        public void InsertarKardex(KardexItem item) => _inventarioDAL.InsertarKardex(item);
 
-        public List<KardexItem> ObtenerKardexPorProducto(int productoId) => inventarioDAL.ObtenerKardexPorProducto(productoId);
+        public List<KardexItem> ObtenerKardexPorProducto(int productoId) => _inventarioDAL.ObtenerKardexPorProducto(productoId);
     }
 }
 

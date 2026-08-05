@@ -10,16 +10,21 @@ namespace Services
 {
     public class ProveedorService
     {
-        private readonly ProveedorDAL proveedorDAL = new ProveedorDAL();
+        private readonly ProveedorDAL _proveedorDAL;
 
-        public int CrearProveedor(Proveedor p) => proveedorDAL.Insertar(p);
+        public ProveedorService(ProveedorDAL proveedorDAL)
+        {
+            _proveedorDAL = proveedorDAL;
+        }
 
-        public List<Proveedor> ListarProveedores() => proveedorDAL.Listar();
+        public int CrearProveedor(Proveedor p) => _proveedorDAL.Insertar(p);
 
-        public Proveedor ObtenerProveedor(int id) => proveedorDAL.ObtenerProveedor((int)id);
+        public List<Proveedor> ListarProveedores() => _proveedorDAL.Listar();
 
-        public void ActualizarProveedor(Proveedor p) => proveedorDAL.Actualizar(p);
+        public Proveedor ObtenerProveedor(int id) => _proveedorDAL.ObtenerProveedor((int)id);
 
-        public void EliminarProveedor(int id) => proveedorDAL.Eliminar(id);
+        public void ActualizarProveedor(Proveedor p) => _proveedorDAL.Actualizar(p);
+
+        public void EliminarProveedor(int id) => _proveedorDAL.Eliminar(id);
     }
 }

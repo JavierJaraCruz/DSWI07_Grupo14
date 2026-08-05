@@ -10,16 +10,21 @@ namespace Services
 {
     public class OrdenService
     {
-        private readonly OrdenDAL ordenDAL = new OrdenDAL();
+        private readonly OrdenDAL _ordenDAL;
+
+        public OrdenService(OrdenDAL ordenDAL)
+        {
+            _ordenDAL = ordenDAL;
+        }
 
         public int CrearOrden(int usuarioId, List<OrdenDetalle> detalles)
-            => ordenDAL.InsertarOrden(usuarioId, detalles);
+            => _ordenDAL.InsertarOrden(usuarioId, detalles);
 
-        public List<Orden> ListarOrdenes() => ordenDAL.ListarOrdenes();
+        public List<Orden> ListarOrdenes() => _ordenDAL.ListarOrdenes();
 
         public Orden ObtenerPorId(int id)
         {
-            return ordenDAL.ObtenerPorId(id);
+            return _ordenDAL.ObtenerPorId(id);
         }
 
     }

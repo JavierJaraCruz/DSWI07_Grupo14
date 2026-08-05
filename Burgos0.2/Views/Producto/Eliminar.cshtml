@@ -1,0 +1,45 @@
+﻿@model Burgos0._2.Models.ProductoViewModel
+
+@{
+    ViewBag.Title = "Eliminar Producto";
+}
+
+<h2>Eliminar Producto</h2>
+
+<div class="alert alert-danger">
+    <h4>¿Está seguro de eliminar este producto?</h4>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.ImagenUrl))
+{
+    <img src="@Model.ImagenUrl"
+         alt="@Model.Nombre"
+         style="max-width:250px; margin-bottom:15px;" />
+}
+
+<dl class="dl-horizontal">
+    <dt>Nombre</dt>
+    <dd>@Model.Nombre</dd>
+
+    <dt>Descripción</dt>
+    <dd>@Model.Descripcion</dd>
+
+    <dt>Precio</dt>
+    <dd>S/. @Model.Precio</dd>
+
+    <dt>Stock</dt>
+    <dd>@Model.Stock</dd>
+</dl>
+
+@using (Html.BeginForm("EliminarConfirmado", "Producto", FormMethod.Post))
+{
+    @Html.HiddenFor(m => m.ProductoId)
+
+    <button type="submit" class="btn btn-danger">
+        Eliminar
+    </button>
+
+    @Html.ActionLink("Cancelar", "Index",
+        null,
+        new { @class = "btn btn-secondary" })
+}

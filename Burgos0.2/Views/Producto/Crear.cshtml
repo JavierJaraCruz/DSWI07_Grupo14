@@ -1,0 +1,70 @@
+﻿@model Burgos0._2.Models.ProductoViewModel
+
+@{
+    ViewBag.Title = "Crear Producto";
+}
+
+<h2>Crear Producto</h2>
+
+@using (Html.BeginForm())
+{
+    <div class="form-group">
+        <label>Nombre</label>
+        @Html.TextBoxFor(m => m.Nombre, new { @class = "form-control" })
+    </div>
+
+    <div class="form-group">
+        <label>Descripción</label>
+        @Html.TextAreaFor(m => m.Descripcion, new { @class = "form-control" })
+    </div>
+
+    <div class="form-group">
+        <label>Precio</label>
+        @Html.TextBoxFor(m => m.Precio, new
+        {
+            @class = "form-control",
+            type = "number",
+            step = "0.01"
+        })
+    </div>
+
+    <div class="form-group">
+        <label>Stock</label>
+        @Html.TextBoxFor(m => m.Stock, new
+        {
+            @class = "form-control",
+            type = "number"
+        })
+    </div>
+
+    <div class="form-group">
+        <label>Categoría</label>
+        @Html.DropDownListFor(
+      m => m.CategoriaId,
+      Model.Categorias,
+      "-- Seleccione una categoría --",
+      new { @class = "form-control" }
+         )
+    </div>
+
+    <div class="form-group">
+        <label>URL de Imagen</label>
+        @Html.TextBoxFor(m => m.ImagenUrl, new
+        {
+            @class = "form-control"
+        })
+    </div>
+    <div class="form-group">
+        <label>Activo</label>
+        <div>
+            @Html.CheckBoxFor(m => m.Activo, new { @class = "form-check-input" })
+            <label class="form-check-label">Producto activo</label>
+        </div>
+    </div>
+
+    <br />
+
+    <button type="submit" class="btn btn-success">
+        Guardar
+    </button>
+}

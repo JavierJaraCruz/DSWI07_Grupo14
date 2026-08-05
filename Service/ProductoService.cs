@@ -13,33 +13,38 @@ namespace Services
 
     {
 
-        private readonly ProductoDAL productoDAL = new ProductoDAL();
+        private readonly ProductoDAL _productoDAL;
+
+        public ProductoService(ProductoDAL productoDAL)
+        {
+            _productoDAL = productoDAL;
+        }
 
 
 
-        public int CrearProducto(Producto p) => productoDAL.Insertar(p);
+        public int CrearProducto(Producto p) => _productoDAL.Insertar(p);
 
 
 
-        public Producto ObtenerProducto(int id) => productoDAL.ObtenerPorId(id);
+        public Producto ObtenerProducto(int id) => _productoDAL.ObtenerPorId(id);
 
 
 
-        public List<Producto> ListarProductos() => productoDAL.Listar();
+        public List<Producto> ListarProductos() => _productoDAL.Listar();
 
 
 
-        public void ActualizarProducto(Producto p) => productoDAL.Actualizar(p);
+        public void ActualizarProducto(Producto p) => _productoDAL.Actualizar(p);
 
 
 
-        public void EliminarProducto(int id) => productoDAL.Eliminar(id);
+        public void EliminarProducto(int id) => _productoDAL.Eliminar(id);
 
 
 
         public void ActualizarStock(int productoId, int cantidad, string tipoMovimiento, string referencia)
 
-          => productoDAL.ActualizarStock(productoId, cantidad, tipoMovimiento, referencia);
+          => _productoDAL.ActualizarStock(productoId, cantidad, tipoMovimiento, referencia);
 
     }
 

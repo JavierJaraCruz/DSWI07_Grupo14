@@ -10,28 +10,33 @@ namespace Services
 {
     public class UsuarioService
     {
-        private readonly UsuarioDAL usuarioDAL = new UsuarioDAL();
+        private readonly UsuarioDAL _usuarioDAL;
 
-        public int CrearUsuario(Usuario u) => usuarioDAL.Insertar(u);
+        public UsuarioService(UsuarioDAL usuarioDAL)
+        {
+            _usuarioDAL = usuarioDAL;
+        }
 
-        public Usuario ObtenerUsuario(int id) => usuarioDAL.ObtenerPorId(id);
+        public int CrearUsuario(Usuario u) => _usuarioDAL.Insertar(u);
 
-        public List<Usuario> ListarUsuarios() => usuarioDAL.Listar();
+        public Usuario ObtenerUsuario(int id) => _usuarioDAL.ObtenerPorId(id);
 
-        public void ActualizarUsuario(Usuario u) => usuarioDAL.Actualizar(u);
+        public List<Usuario> ListarUsuarios() => _usuarioDAL.Listar();
 
-        public void EliminarUsuario(int id) => usuarioDAL.Eliminar(id);
+        public void ActualizarUsuario(Usuario u) => _usuarioDAL.Actualizar(u);
 
-        public Usuario ObtenerUsuarioPorNombre(string nombreUsuario) => usuarioDAL.ObtenerPorNombreUsuario(nombreUsuario);
+        public void EliminarUsuario(int id) => _usuarioDAL.Eliminar(id);
 
-        public void AsignarRolAUsuario(int usuarioId, int rolId) => usuarioDAL.AsignarRol(usuarioId, rolId);
+        public Usuario ObtenerUsuarioPorNombre(string nombreUsuario) => _usuarioDAL.ObtenerPorNombreUsuario(nombreUsuario);
+
+        public void AsignarRolAUsuario(int usuarioId, int rolId) => _usuarioDAL.AsignarRol(usuarioId, rolId);
 
         public string ObtenerNombreRolPorUsuario(int usuarioId)
         {
      
-            return usuarioDAL.ObtenerNombreRolPorUsuario(usuarioId);
+            return _usuarioDAL.ObtenerNombreRolPorUsuario(usuarioId);
         }
 
-        public List<Rol> ListarRoles() => usuarioDAL.ListarRoles();
+        public List<Rol> ListarRoles() => _usuarioDAL.ListarRoles();
     }
 }

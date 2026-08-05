@@ -10,12 +10,17 @@ namespace Services
 {
     public class RolService
     {
-        private readonly RolDAL rolDAL = new RolDAL();
+        private readonly RolDAL _rolDAL;
 
-        public int CrearRol(Rol r) => rolDAL.Insertar(r);
+        public RolService(RolDAL rolDAL)
+        {
+            _rolDAL = rolDAL;
+        }
 
-        public List<Rol> ListarRoles() => rolDAL.Listar();
+        public int CrearRol(Rol r) => _rolDAL.Insertar(r);
 
-        public void EliminarRol(int id) => rolDAL.Eliminar(id);
+        public List<Rol> ListarRoles() => _rolDAL.Listar();
+
+        public void EliminarRol(int id) => _rolDAL.Eliminar(id);
     }
 }

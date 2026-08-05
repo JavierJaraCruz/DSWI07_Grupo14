@@ -9,9 +9,9 @@ namespace Web.Services
     {
         private readonly DashboardDAL _dashboardDAL;
 
-        public DashboardService()
+        public DashboardService(DashboardDAL dashboardDAL)
         {
-            _dashboardDAL = new DashboardDAL();
+            _dashboardDAL = dashboardDAL;
         }
 
         public Dashboard ObtenerDashboard()

@@ -1,20 +1,26 @@
-﻿using Entities;
+﻿using DAL;
+using Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DAL;
+using Web.DAL;
 
 namespace Services
 {
     public class InventarioService
     {
-        private readonly InventarioDAL inventarioDAL = new InventarioDAL();
+        private readonly InventarioDAL _inventarioDAL;
 
-        public int RegistrarMovimiento(InventarioMovimiento mov) => inventarioDAL.InsertarMovimiento(mov);
+        public InventarioService(InventarioDAL inventarioDAL)
+        {
+            _inventarioDAL = inventarioDAL;
+        }
 
-        public List<InventarioMovimiento> ListarMovimientos(int productoId) => inventarioDAL.ListarMovimientos(productoId);
+        public int RegistrarMovimiento(InventarioMovimiento mov) => _inventarioDAL.InsertarMovimiento(mov);
+
+        public List<InventarioMovimiento> ListarMovimientos(int productoId) => _inventarioDAL.ListarMovimientos(productoId);
 
     }
 }
