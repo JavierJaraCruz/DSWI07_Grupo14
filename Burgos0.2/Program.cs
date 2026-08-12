@@ -8,7 +8,12 @@ using Web.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services
+    .AddControllersWithViews()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = null;
+    });
 
 builder.Services.AddScoped<ConexionBD>();
 
@@ -18,7 +23,6 @@ builder.Services.AddScoped<CategoriaDAL>();
 builder.Services.AddScoped<CategoriaService>();
 builder.Services.AddScoped<CompraDAL>();
 builder.Services.AddScoped<CompraService>();
-builder.Services.AddScoped<CarritoService>();
 builder.Services.AddScoped<DashboardDAL>();
 builder.Services.AddScoped<DashboardService>();
 builder.Services.AddScoped<InventarioDAL>();
@@ -38,6 +42,14 @@ builder.Services.AddScoped<UsuarioDAL>();
 builder.Services.AddScoped<UsuarioService>();
 
 
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -52,6 +64,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseSession();
 
 app.UseAuthorization();
 

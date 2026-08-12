@@ -1,0 +1,61 @@
+﻿@model Entities.Usuario
+
+@{
+    ViewData["Title"] = "Detalle Usuario";
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/detalle.css"
+          asp-append-version="true" />
+}
+
+<div class="card">
+
+    ```
+    <h2>Detalle del Usuario</h2>
+
+    <dl class="dl-horizontal">
+
+        <dt>Nombre Usuario</dt>
+        <dd>@Model.NombreUsuario</dd>
+
+        <dt>Email</dt>
+        <dd>@Model.Email</dd>
+
+        <dt>Rol Asignado</dt>
+        <dd>
+            @(ViewBag.RolNombre ?? "Sin Rol Asignado")
+        </dd>
+
+        <dt>Fecha Registro</dt>
+        <dd>
+            @Model.FechaRegistro.ToString("dd/MM/yyyy")
+        </dd>
+
+        <dt>Estado</dt>
+        <dd>
+            @(Model.Estado ? "Activo" : "Inactivo")
+        </dd>
+
+    </dl>
+
+    <p>
+
+        <a asp-controller="Usuario"
+           asp-action="Editar"
+           asp-route-id="@Model.UsuarioId"
+           class="btn btn-warning">
+            ✏️ Editar
+        </a>
+
+        <a asp-controller="Usuario"
+           asp-action="Index"
+           class="btn btn-secondary">
+            ← Volver
+        </a>
+
+    </p>
+    ```
+
+</div>

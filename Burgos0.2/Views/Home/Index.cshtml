@@ -1,8 +1,82 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model Burgos0._2.Models.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Panel de Control";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/index.css"
+          asp-append-version="true" />
+}
+
+<div class="page-header">
+    <h1>Panel de Control</h1>
+</div>
+
+<div class="dashboard-grid">
+
+    <div class="stat-card">
+
+        <div class="stat-icon icon-blue">
+            📦
+        </div>
+
+        <div class="stat-info">
+            <h3>@Model.CantidadProductos</h3>
+            <p>Productos</p>
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-icon icon-green">
+            🛒
+        </div>
+
+        <div class="stat-info">
+            <h3>@Model.CantidadVentas</h3>
+            <p>Ventas</p>
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-icon icon-orange">
+            ⚠️
+        </div>
+
+        <div class="stat-info">
+            <h3>@Model.StockBajo</h3>
+            <p>Stock Bajo</p>
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-icon icon-purple">
+            💵
+        </div>
+
+        <div class="stat-info">
+
+            <h3>
+                @Model.TotalVentasMonto.ToString(
+                "C2",
+                                new System.Globalization.CultureInfo("es-PE")
+                                )
+            </h3>
+
+            <p>Total Ventas</p>
+
+        </div>
+
+    </div>
+
 </div>

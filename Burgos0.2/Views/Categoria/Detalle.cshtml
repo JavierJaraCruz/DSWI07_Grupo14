@@ -1,0 +1,40 @@
+﻿@model Burgos0._2.Models.CategoriaViewModel
+
+@{
+    ViewData["Title"] = "Detalle de Categoría";
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/detalle.css"
+          asp-append-version="true" />
+}
+
+<div class="card">
+
+    <h2>Detalle de Categoría</h2>
+
+    <dl class="dl-horizontal">
+
+        <dt>ID</dt>
+        <dd>@Model.CategoriaId</dd>
+
+        <dt>Nombre</dt>
+        <dd>@Model.Nombre</dd>
+
+        <dt>Descripción</dt>
+        <dd>@Model.Descripcion</dd>
+
+    </dl>
+
+    <p>
+
+        <a asp-controller="Categoria"
+           asp-action="Index"
+           class="btn btn-secondary">
+            Volver
+        </a>
+
+    </p>
+
+</div>

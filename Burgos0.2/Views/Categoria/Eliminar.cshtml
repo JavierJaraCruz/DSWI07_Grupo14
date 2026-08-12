@@ -1,0 +1,36 @@
+﻿@model Burgos0._2.Models.CategoriaViewModel
+
+@{
+    ViewData["Title"] = "Eliminar Categoría";
+}
+
+<dl>
+    <dt>ID</dt>
+    <dd>@Model.CategoriaId</dd>
+
+    <dt>Nombre</dt>
+    <dd>@Model.Nombre</dd>
+
+    <dt>Descripción</dt>
+    <dd>@Model.Descripcion</dd>
+</dl>
+
+<form asp-controller="Categoria"
+      asp-action="EliminarConfirmado"
+      method="post">
+
+    <input type="hidden"
+           asp-for="CategoriaId" />
+
+    <button type="submit"
+            class="btn btn-danger">
+        Eliminar
+    </button>
+
+    <a asp-controller="Categoria"
+       asp-action="Index"
+       class="btn btn-secondary">
+        Cancelar
+    </a>
+
+</form>

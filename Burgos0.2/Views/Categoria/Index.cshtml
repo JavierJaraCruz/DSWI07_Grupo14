@@ -1,7 +1,7 @@
-﻿@model IEnumerable<Burgos0._2.Models.ProductoViewModel>
+﻿@model IEnumerable<Burgos0._2.Models.CategoriaViewModel>
 
 @{
-    ViewData["Title"] = "Productos";
+    ViewData["Title"] = "Categorías";
 }
 
 @section Styles {
@@ -11,13 +11,15 @@
 }
 
 <div class="page-header">
-    <h1>Productos</h1>
 
-    <a asp-controller="Producto"
+    <h1>Categorías</h1>
+
+    <a asp-controller="Categoria"
        asp-action="Crear"
        class="btn-primary">
-        ＋ Nuevo Producto
+        ＋ Nueva Categoría
     </a>
+
 </div>
 
 <div class="table-container">
@@ -26,64 +28,63 @@
 
         <thead>
             <tr>
-                <th>Imagen</th>
+                <th>ID</th>
                 <th>Nombre</th>
-                <th>Precio</th>
-                <th>Stock</th>
-                <th>Categoría</th>
+                <th>Descripción</th>
                 <th>Acciones</th>
             </tr>
         </thead>
 
         <tbody>
+
             @foreach (var item in Model)
             {
                 <tr>
+
                     <td>
-                        @if (!string.IsNullOrEmpty(item.ImagenUrl))
-                        {
-                            <img src="@item.ImagenUrl"
-                                 width="60"
-                                 style="border-radius: 4px; display: block;" />
-                        }
+                        @item.CategoriaId
                     </td>
 
-                    <td>@item.Nombre</td>
-
-                    <td>S/. @item.Precio</td>
-
-                    <td>@item.Stock</td>
-
-                    <td>@item.CategoriaNombre</td>
+                    <td>
+                        @item.Nombre
+                    </td>
 
                     <td>
+                        @item.Descripcion
+                    </td>
+
+                    <td>
+
                         <div class="table-actions">
 
-                            <a asp-controller="Producto"
+                            <a asp-controller="Categoria"
                                asp-action="Detalle"
-                               asp-route-id="@item.ProductoId"
+                               asp-route-id="@item.CategoriaId"
                                class="btn-table-edit">
                                 🔍 Detalle
                             </a>
 
-                            <a asp-controller="Producto"
+                            <a asp-controller="Categoria"
                                asp-action="Editar"
-                               asp-route-id="@item.ProductoId"
+                               asp-route-id="@item.CategoriaId"
                                class="btn-table-edit">
                                 ✏️ Editar
                             </a>
 
-                            <a asp-controller="Producto"
+                            <a asp-controller="Categoria"
                                asp-action="Eliminar"
-                               asp-route-id="@item.ProductoId"
+                               asp-route-id="@item.CategoriaId"
                                class="btn-table-delete">
                                 🗑️ Eliminar
                             </a>
 
                         </div>
+
                     </td>
+
                 </tr>
             }
+
         </tbody>
 
     </table>

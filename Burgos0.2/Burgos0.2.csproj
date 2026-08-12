@@ -1,10 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>Burgos0._2</RootNamespace>
+    <UserSecretsId>b97bd497-f3ff-4a0c-a762-ba77066f0098</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

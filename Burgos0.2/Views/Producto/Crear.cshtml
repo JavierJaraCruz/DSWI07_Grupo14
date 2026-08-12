@@ -1,70 +1,134 @@
 ﻿@model Burgos0._2.Models.ProductoViewModel
 
 @{
-    ViewBag.Title = "Crear Producto";
+    ViewData["Title"] = "Crear Producto";
 }
 
-<h2>Crear Producto</h2>
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/create.css"
+          asp-append-version="true" />
+}
 
-@using (Html.BeginForm())
-{
-    <div class="form-group">
-        <label>Nombre</label>
-        @Html.TextBoxFor(m => m.Nombre, new { @class = "form-control" })
+<div class="page-header">
+    <h2>Crear Producto</h2>
+</div>
+
+<form asp-controller="Producto"
+      asp-action="Crear"
+      method="post">
+
+    
+    @Html.AntiForgeryToken()
+
+    <div asp-validation-summary="ModelOnly"
+         class="validation-summary-errors">
     </div>
 
     <div class="form-group">
-        <label>Descripción</label>
-        @Html.TextAreaFor(m => m.Descripcion, new { @class = "form-control" })
+        <label asp-for="Nombre"></label>
+
+        <input asp-for="Nombre"
+               class="form-control"
+               placeholder="Ingrese el nombre del producto" />
+
+        <span asp-validation-for="Nombre"
+              class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label>Precio</label>
-        @Html.TextBoxFor(m => m.Precio, new
-        {
-            @class = "form-control",
-            type = "number",
-            step = "0.01"
-        })
+        <label asp-for="Descripcion"></label>
+
+        <textarea asp-for="Descripcion"
+                  class="form-control"
+                  rows="4"
+                  placeholder="Ingrese la descripción del producto"></textarea>
+
+        <span asp-validation-for="Descripcion"
+              class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label>Stock</label>
-        @Html.TextBoxFor(m => m.Stock, new
-        {
-            @class = "form-control",
-            type = "number"
-        })
+        <label asp-for="Precio"></label>
+
+        <input asp-for="Precio"
+               class="form-control"
+               type="number"
+               step="0.01"
+               placeholder="0.00" />
+
+        <span asp-validation-for="Precio"
+              class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label>Categoría</label>
-        @Html.DropDownListFor(
-      m => m.CategoriaId,
-      Model.Categorias,
-      "-- Seleccione una categoría --",
-      new { @class = "form-control" }
-         )
+        <label asp-for="Stock"></label>
+
+        <input asp-for="Stock"
+               class="form-control"
+               type="number"
+               placeholder="Ingrese el stock" />
+
+        <span asp-validation-for="Stock"
+              class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label>URL de Imagen</label>
-        @Html.TextBoxFor(m => m.ImagenUrl, new
-        {
-            @class = "form-control"
-        })
+        <label asp-for="CategoriaId"></label>
+
+        <select asp-for="CategoriaId"
+                asp-items="Model.Categorias"
+                class="form-control">
+
+            <option value="">
+                -- Seleccione una categoría --
+            </option>
+
+        </select>
+
+        <span asp-validation-for="CategoriaId"
+              class="text-danger"></span>
     </div>
+
+    <div class="form-group">
+        <label asp-for="ImagenUrl"></label>
+
+        <input asp-for="ImagenUrl"
+               class="form-control"
+               placeholder="https://ejemplo.com/imagen.jpg" />
+
+        <span asp-validation-for="ImagenUrl"
+              class="text-danger"></span>
+    </div>
+
     <div class="form-group">
         <label>Activo</label>
+
         <div>
-            @Html.CheckBoxFor(m => m.Activo, new { @class = "form-check-input" })
-            <label class="form-check-label">Producto activo</label>
+            <input asp-for="Activo"
+                   class="form-check-input" />
+
+            <label class="form-check-label">
+                Producto activo
+            </label>
         </div>
     </div>
 
-    <br />
+    <div>
+        <button type="submit" class="btn btn-success">
+            Guardar
+        </button>
 
-    <button type="submit" class="btn btn-success">
-        Guardar
-    </button>
+        <a asp-controller="Producto"
+           asp-action="Index"
+           class="btn btn-secondary">
+            Volver
+        </a>
+    </div>
+    
+
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
 }

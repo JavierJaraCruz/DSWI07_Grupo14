@@ -1,0 +1,164 @@
+﻿
+@model Burgos0._2.Models.ProveedorViewModel
+
+@{
+    ViewData["Title"] = "Eliminar Proveedor";
+}
+
+@section Styles {
+    <style>
+        .card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            padding: 35px;
+            width: 100%;
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 24px;
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .card img {
+            display: block;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            background-color: #f8fafc;
+            object-fit: cover;
+        }
+
+        .dl-horizontal {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            gap: 16px 24px;
+            margin-bottom: 30px;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 20px;
+        }
+
+            .dl-horizontal dt {
+                font-size: 11px;
+                font-weight: 600;
+                color: #64748b;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                display: flex;
+                align-items: center;
+            }
+
+            .dl-horizontal dd {
+                font-size: 14px;
+                color: #334155;
+                font-weight: 500;
+                margin: 0;
+                word-break: break-word;
+            }
+
+        .card p {
+            display: flex;
+            gap: 12px;
+            margin: 0;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .btn-warning {
+            background-color: #f59e0b;
+            color: #ffffff;
+            border: none;
+        }
+
+            .btn-warning:hover {
+                background-color: #d97706;
+            }
+
+        .btn-secondary {
+            background-color: #ffffff;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+        }
+
+            .btn-secondary:hover {
+                background-color: #f8fafc;
+                border-color: #94a3b8;
+                color: #1e293b;
+            }
+
+        .btn-danger {
+            background-color: #dc2626;
+            color: #ffffff;
+            border: none;
+        }
+
+            .btn-danger:hover {
+                background-color: #b91c1c;
+            }
+    </style>
+}
+
+<div class="card">
+
+    <h2>Eliminar Proveedor</h2>
+
+    <dl class="dl-horizontal">
+
+        <dt>ID</dt>
+        <dd>@Model.ProveedorId</dd>
+
+        <dt>Nombre</dt>
+        <dd>@Model.Nombre</dd>
+
+        <dt>Email</dt>
+        <dd>@Model.Email</dd>
+
+        <dt>Teléfono</dt>
+        <dd>@Model.Telefono</dd>
+
+        <dt>Dirección</dt>
+        <dd>@Model.Direccion</dd>
+
+    </dl>
+
+    <p>
+
+        <form asp-action="EliminarConfirmado" method="post">
+
+            <input type="hidden"
+                   asp-for="ProveedorId" />
+
+            <button type="submit"
+                    class="btn btn-danger">
+                Eliminar
+            </button>
+
+            <a asp-controller="Proveedor"
+               asp-action="Index"
+               class="btn btn-secondary">
+                Cancelar
+            </a>
+
+        </form>
+
+    </p>
+
+</div>
+

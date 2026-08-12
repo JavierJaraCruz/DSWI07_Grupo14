@@ -1,0 +1,30 @@
+﻿@model Burgos0._2.Models.OrdenViewModel
+
+@{
+    ViewData["Title"] = "Detalle de Orden";
+}
+
+<p>
+    <strong>ID:</strong>
+    @Model.OrdenId
+</p>
+
+<p>
+    <strong>Usuario:</strong>
+    @Model.UsuarioId
+</p>
+
+<p>
+    <strong>Fecha:</strong>
+    @Model.FechaOrden.ToString("dd/MM/yyyy")
+</p>
+
+<p>
+    <strong>Total:</strong>
+    S/ @Model.Total
+</p>
+
+<p>
+    <strong>Estado:</strong>
+    @Model.Estado
+</p>

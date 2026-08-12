@@ -1,0 +1,90 @@
+﻿@model Burgos0._2.Models.ProveedorViewModel
+
+@{
+    ViewData["Title"] = "Editar Proveedor";
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/create.css"
+          asp-append-version="true" />
+}
+
+<h2>Editar Proveedor</h2>
+
+<form asp-action="Editar" method="post">
+
+    @Html.AntiForgeryToken()
+
+    <input type="hidden"
+           asp-for="ProveedorId" />
+
+    <div asp-validation-summary="ModelOnly"
+         class="validation-summary-errors">
+    </div>
+
+    <div class="form-group">
+
+        <label asp-for="Nombre"></label>
+
+        <input asp-for="Nombre"
+               class="form-control" />
+
+        <span asp-validation-for="Nombre"
+              class="text-danger"></span>
+
+    </div>
+
+    <div class="form-group">
+
+        <label asp-for="Email"></label>
+
+        <input asp-for="Email"
+               class="form-control" />
+
+        <span asp-validation-for="Email"
+              class="text-danger"></span>
+
+    </div>
+
+    <div class="form-group">
+
+        <label asp-for="Telefono"></label>
+
+        <input asp-for="Telefono"
+               class="form-control" />
+
+        <span asp-validation-for="Telefono"
+              class="text-danger"></span>
+
+    </div>
+
+    <div class="form-group">
+
+        <label asp-for="Direccion"></label>
+
+        <textarea asp-for="Direccion"
+                  rows="3"
+                  class="form-control"></textarea>
+
+        <span asp-validation-for="Direccion"
+              class="text-danger"></span>
+
+    </div>
+
+    <button type="submit"
+            class="btn btn-primary">
+        Actualizar
+    </button>
+
+    <a asp-controller="Proveedor"
+       asp-action="Index"
+       class="btn btn-secondary">
+        Volver
+    </a>
+
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

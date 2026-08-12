@@ -1,0 +1,127 @@
+﻿@model IEnumerable<Entities.Usuario>
+
+@{
+    ViewData["Title"] = "Usuarios";
+}
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/index.css"
+          asp-append-version="true" />
+    <link rel="stylesheet"
+          href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+}
+
+
+<div class="page-header">
+
+
+    <h1>Usuarios</h1>
+
+    <a asp-controller="Usuario"
+       asp-action="Crear"
+       class="btn-primary">
+        ＋ Crear Nuevo
+    </a>
+ 
+
+</div>
+
+<div class="table-container">
+
+    <table id="usuariosTable" class="custom-table">
+
+        <thead>
+            <tr>
+                <th>Nombre Usuario</th>
+                <th>Email</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            @foreach (var u in Model)
+            {
+                <tr>
+
+                    <td>
+                        @u.NombreUsuario
+                    </td>
+
+                    <td>
+                        @u.Email
+                    </td>
+
+                    <td>
+                        @(u.Estado ? "Activo" : "Inactivo")
+                    </td>
+
+                    <td>
+
+                        <div class="table-actions">
+
+                            <a asp-controller="Usuario"
+                               asp-action="Detalle"
+                               asp-route-id="@u.UsuarioId"
+                               class="btn-table-edit"
+                               style="text-decoration: none;">
+                                🔍 Detalle
+                            </a>
+
+                            <a asp-controller="Usuario"
+                               asp-action="Editar"
+                               asp-route-id="@u.UsuarioId"
+                               class="btn-table-edit"
+                               style="text-decoration: none;">
+                                ✏️ Editar
+                            </a>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+            }
+
+        </tbody>
+
+    </table>
+
+
+</div>
+
+@section Scripts {
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            var table = $('#usuariosTable').DataTable({
+                paging: true,
+                pageLength: 10,
+                lengthMenu: [5, 10, 25, 50],
+                ordering: true,
+                searching: true,
+
+                language: {
+                    search: " Buscar:",
+                    lengthMenu: "Mostrar _MENU_ filas",
+                    info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+
+                    paginate: {
+                        first: "Primero",
+                        last: "Último",
+                        next: "Siguiente",
+                        previous: "Anterior"
+                    }
+                }
+            });
+
+        });
+    </script>
+ 
+
+}

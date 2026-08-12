@@ -1,0 +1,60 @@
+﻿@model Burgos0._2.Models.CategoriaViewModel
+
+@{
+    ViewData["Title"] = "Editar Categoría";
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/create.css"
+          asp-append-version="true" />
+}
+
+<h2>Editar Categoría</h2>
+
+<form asp-action="Editar" method="post">
+
+    <input type="hidden" asp-for="CategoriaId" />
+
+    <div asp-validation-summary="ModelOnly"
+         class="validation-summary-errors">
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Nombre"></label>
+
+        <input asp-for="Nombre"
+               class="form-control"
+               placeholder="Ingrese el nombre de la categoría" />
+
+        <span asp-validation-for="Nombre"
+              class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Descripcion"></label>
+
+        <textarea asp-for="Descripcion"
+                  class="form-control"
+                  rows="4"
+                  placeholder="Ingrese una descripción"></textarea>
+
+        <span asp-validation-for="Descripcion"
+              class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Actualizar
+    </button>
+
+    <a asp-controller="Categoria"
+       asp-action="Index"
+       class="btn btn-secondary">
+        Volver
+    </a>
+
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,118 @@
+﻿@model Burgos0._2.Models.UsuarioEditViewModel
+
+@{
+    ViewData["Title"] = "Crear Usuario";
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/create.css"
+          asp-append-version="true" />
+}
+
+<div class="content">
+
+    <div class="page-header">
+        <h2>Crear Usuario</h2>
+    </div>
+
+    <form id="createForm"
+          asp-controller="Usuario"
+          asp-action="Crear"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly"
+             class="text-danger"></div>
+
+        <div class="form-group">
+
+            <label asp-for="NombreUsuario"></label>
+
+            <input asp-for="NombreUsuario"
+                   class="form-control"
+                   placeholder="Ingrese nombre de usuario" />
+
+            <span asp-validation-for="NombreUsuario"
+                  class="text-danger"></span>
+
+        </div>
+
+        <div class="form-group">
+
+            <label asp-for="Email"></label>
+
+            <input asp-for="Email"
+                   class="form-control"
+                   placeholder="ejemplo@correo.com" />
+
+            <span asp-validation-for="Email"
+                  class="text-danger"></span>
+
+        </div>
+
+        <div class="form-group">
+
+            <label asp-for="RolId">
+                Rol Asignado
+            </label>
+
+            <select asp-for="RolId"
+                    asp-items="ViewBag.Roles"
+                    class="form-control">
+
+                <option value="">
+                    -- Seleccione un Rol --
+                </option>
+
+            </select>
+
+            <span asp-validation-for="RolId"
+                  class="text-danger"></span>
+
+        </div>
+
+        <div class="form-group">
+
+            <label asp-for="Estado"></label>
+
+            <input asp-for="Estado" />
+
+        </div>
+
+        <button type="submit"
+                class="btn btn-primary">
+            Guardar
+        </button>
+
+        <a asp-controller="Usuario"
+           asp-action="Index"
+           class="btn btn-secondary">
+            Cancelar
+        </a>
+
+    </form>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="message-banner">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+
+</div>
+
+@section Scripts {
+
+    <script>
+        document.getElementById("createForm").addEventListener("submit", function (e) {
+            if (!confirm("¿Desea guardar este usuario?")) {
+                e.preventDefault();
+            }
+        });
+    </script>
+   
+
+}

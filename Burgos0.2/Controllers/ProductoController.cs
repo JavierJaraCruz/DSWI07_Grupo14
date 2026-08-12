@@ -6,6 +6,7 @@ using Burgos0._2.Models;
 
 namespace Burgos0._2.Controllers
 {
+    [ValidarSesion]
     public class ProductoController : Controller
     {
         private readonly ProductoService _productoService;
