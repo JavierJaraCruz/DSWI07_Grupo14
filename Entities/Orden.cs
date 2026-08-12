@@ -14,6 +14,7 @@ namespace Entities
 
         [Required]
         public int UsuarioId { get; set; }
+        public string NombreUsuario { get; set; }
 
         [DataType(DataType.Date)]
         public DateTime FechaOrden { get; set; }
@@ -23,6 +24,7 @@ namespace Entities
 
         [Required, StringLength(20)]
         public string Estado { get; set; }
+
 
     }
 }

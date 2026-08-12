@@ -19,27 +19,96 @@ namespace DAL
             _bd = bd;
         }
 
-        public List<Orden> ListarOrdenes()
+        public List<Orden> ListarOrdenes(int pagina, int tamano)
         {
             var lista = new List<Orden>();
+
+            int offset = (pagina - 1) * tamano;
+
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
-                string query = "SELECT * FROM Ordenes";
+                string query = @"
+            SELECT
+                o.OrdenId,
+                o.UsuarioId,
+                u.NombreUsuario,
+                o.FechaOrden,
+                o.Total,
+                o.Estado
+            FROM Ordenes o
+            INNER JOIN Usuarios u
+                ON o.UsuarioId = u.UsuarioId
+            ORDER BY o.OrdenId
+            OFFSET @Offset ROWS
+            FETCH NEXT @Tamano ROWS ONLY";
+
                 SqlCommand cmd = new SqlCommand(query, conn);
+
+                cmd.Parameters.AddWithValue("@Offset", offset);
+                cmd.Parameters.AddWithValue("@Tamano", tamano);
+
                 conn.Open();
+
                 SqlDataReader reader = cmd.ExecuteReader();
+
                 while (reader.Read())
                 {
                     lista.Add(new Orden
                     {
                         OrdenId = (int)reader["OrdenId"],
                         UsuarioId = (int)reader["UsuarioId"],
+                        NombreUsuario = reader["NombreUsuario"].ToString(),
                         FechaOrden = (DateTime)reader["FechaOrden"],
                         Total = (decimal)reader["Total"],
                         Estado = reader["Estado"].ToString()
                     });
                 }
             }
+
+            return lista;
+        }
+        public List<Orden> ListarOrdenesDe(int usuarioId)
+        {
+            var lista = new List<Orden>();
+
+            using (SqlConnection conn = _bd.ObtenerConexion())
+            {
+                string query = @"
+            SELECT
+                o.OrdenId,
+                o.UsuarioId,
+                u.NombreUsuario,
+                o.FechaOrden,
+                o.Total,
+                o.Estado
+            FROM Ordenes o
+            INNER JOIN Usuarios u
+                ON o.UsuarioId = u.UsuarioId
+            WHERE o.UsuarioId = @UsuarioId
+            ORDER BY o.OrdenId DESC";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+
+                cmd.Parameters.AddWithValue("@UsuarioId", usuarioId);
+
+                conn.Open();
+
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    lista.Add(new Orden
+                    {
+                        OrdenId = (int)reader["OrdenId"],
+                        UsuarioId = (int)reader["UsuarioId"],
+                        NombreUsuario = reader["NombreUsuario"].ToString(),
+                        FechaOrden = (DateTime)reader["FechaOrden"],
+                        Total = (decimal)reader["Total"],
+                        Estado = reader["Estado"].ToString()
+                    });
+                }
+            }
+
             return lista;
         }
 
@@ -190,6 +259,19 @@ namespace DAL
                 cmd.Parameters.AddWithValue("@Id", ordenId);
                 conn.Open();
                 cmd.ExecuteNonQuery();
+            }
+        }
+        public int ContarOrdenes()
+        {
+            using (SqlConnection conn = _bd.ObtenerConexion())
+            {
+                string query = "SELECT COUNT(*) FROM Ordenes";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+
+                conn.Open();
+
+                return Convert.ToInt32(cmd.ExecuteScalar());
             }
         }
     }

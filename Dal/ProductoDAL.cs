@@ -23,7 +23,7 @@ namespace DAL
             _bd = bd;
         }
 
-
+        
 
         public List<Producto> Listar()
 
@@ -34,7 +34,7 @@ namespace DAL
             using (SqlConnection conn = _bd.ObtenerConexion())
 
             {
-
+                //LISTA SOLO PRODUCTOS ACTIVOS, CONSIDERAR CREAR OTRO METODO PARA LISTAR PRODUCTOS SIN FILTROS
                 string query = @"SELECT
                         p.*,
                         c.Nombre AS CategoriaNombre
