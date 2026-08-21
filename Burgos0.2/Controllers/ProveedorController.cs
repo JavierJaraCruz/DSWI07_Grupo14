@@ -5,7 +5,6 @@ using Services;
 
 namespace Burgos0._2.Controllers
 {
-
     [ValidarSesion]
     public class ProveedorController : Controller
     {
@@ -16,9 +15,9 @@ namespace Burgos0._2.Controllers
             _proveedorService = proveedorService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var proveedores = _proveedorService.ListarProveedores();
+            var proveedores = await _proveedorService.ListarProveedoresAsync();
 
             var lista = proveedores.Select(p => new ProveedorViewModel
             {
@@ -33,9 +32,9 @@ namespace Burgos0._2.Controllers
         }
 
         [HttpGet]
-        public IActionResult Detalle(int id)
+        public async Task<IActionResult> Detalle(int id)
         {
-            var proveedor = _proveedorService.ObtenerProveedor(id);
+            var proveedor = await _proveedorService.ObtenerProveedorAsync(id);
 
             if (proveedor == null)
                 return NotFound();
@@ -60,7 +59,7 @@ namespace Burgos0._2.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Crear(ProveedorViewModel vm)
+        public async Task<IActionResult> Crear(ProveedorViewModel vm)
         {
             if (!ModelState.IsValid)
                 return View(vm);
@@ -73,15 +72,15 @@ namespace Burgos0._2.Controllers
                 Direccion = vm.Direccion
             };
 
-            _proveedorService.CrearProveedor(proveedor);
+            await _proveedorService.CrearProveedorAsync(proveedor);
 
             return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
-        public IActionResult Editar(int id)
+        public async Task<IActionResult> Editar(int id)
         {
-            var proveedor = _proveedorService.ObtenerProveedor(id);
+            var proveedor = await _proveedorService.ObtenerProveedorAsync(id);
 
             if (proveedor == null)
                 return NotFound();
@@ -100,7 +99,7 @@ namespace Burgos0._2.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Editar(ProveedorViewModel vm)
+        public async Task<IActionResult> Editar(ProveedorViewModel vm)
         {
             if (!ModelState.IsValid)
                 return View(vm);
@@ -114,15 +113,15 @@ namespace Burgos0._2.Controllers
                 Direccion = vm.Direccion
             };
 
-            _proveedorService.ActualizarProveedor(proveedor);
+            await _proveedorService.ActualizarProveedorAsync(proveedor);
 
             return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
-        public IActionResult Eliminar(int id)
+        public async Task<IActionResult> Eliminar(int id)
         {
-            var proveedor = _proveedorService.ObtenerProveedor(id);
+            var proveedor = await _proveedorService.ObtenerProveedorAsync(id);
 
             if (proveedor == null)
                 return NotFound();
@@ -141,9 +140,9 @@ namespace Burgos0._2.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult EliminarConfirmado(int proveedorId)
+        public async Task<IActionResult> EliminarConfirmado(int proveedorId)
         {
-            _proveedorService.EliminarProveedor(proveedorId);
+            await _proveedorService.EliminarProveedorAsync(proveedorId);
 
             return RedirectToAction(nameof(Index));
         }

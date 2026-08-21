@@ -1,35 +1,36 @@
 ﻿using Entities;
+using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
-using Microsoft.Data.SqlClient;
-using System.Linq;
-using System.Text;
-
 using System.Threading.Tasks;
 
 namespace Dal
-
 {
     public class CarritoDAL
     {
         private readonly ConexionBD _bd;
+
         public CarritoDAL(ConexionBD bd)
         {
             _bd = bd;
         }
 
-        public Carrito ObtenerPorUsuario(int usuarioId)
+        public async Task<Carrito> ObtenerPorUsuario(int usuarioId)
         {
             Carrito? carrito = null;
+
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
                 string query = "SELECT * FROM Carrito WHERE UsuarioId=@UsuarioId";
+
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@UsuarioId", usuarioId);
-                conn.Open();
-                SqlDataReader reader = cmd.ExecuteReader();
-                if (reader.Read())
+
+                await conn.OpenAsync();
+
+                SqlDataReader reader = await cmd.ExecuteReaderAsync();
+
+                if (await reader.ReadAsync())
                 {
                     carrito = new Carrito
                     {
@@ -40,20 +41,26 @@ namespace Dal
                     };
                 }
             }
+
             return carrito;
         }
 
-        public Carrito ObtenerCarrito(int carritoId)
+        public async Task<Carrito> ObtenerCarrito(int carritoId)
         {
             Carrito? carrito = null;
+
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
                 string query = "SELECT * FROM Carrito WHERE CarritoId=@CarritoId";
+
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@CarritoId", carritoId);
-                conn.Open();
-                SqlDataReader reader = cmd.ExecuteReader();
-                if (reader.Read())
+
+                await conn.OpenAsync();
+
+                SqlDataReader reader = await cmd.ExecuteReaderAsync();
+
+                if (await reader.ReadAsync())
                 {
                     carrito = new Carrito
                     {
@@ -64,28 +71,39 @@ namespace Dal
                     };
                 }
             }
+
             return carrito;
         }
 
-        public int CrearCarrito(int usuarioId)
+        public async Task<int> CrearCarrito(int usuarioId)
         {
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
                 string query = @"INSERT INTO Carrito (UsuarioId,FechaCreacion,Estado)
-                                 VALUES (@UsuarioId,GETDATE(),'Activo'); SELECT SCOPE_IDENTITY();";
+                                 VALUES (@UsuarioId,GETDATE(),'Activo'); 
+                                 SELECT SCOPE_IDENTITY();";
+
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@UsuarioId", usuarioId);
-                conn.Open();
-                return Convert.ToInt32(cmd.ExecuteScalar());
+
+                await conn.OpenAsync();
+
+                return Convert.ToInt32(await cmd.ExecuteScalarAsync());
             }
         }
 
-        public void AgregarProducto(int carritoId, int productoId, int cantidad, decimal precioUnitario)
+        public async Task AgregarProducto(
+            int carritoId,
+            int productoId,
+            int cantidad,
+            decimal precioUnitario)
         {
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
-                conn.Open();
-                SqlTransaction tx = conn.BeginTransaction();
+                await conn.OpenAsync();
+
+                SqlTransaction tx = (SqlTransaction)await conn.BeginTransactionAsync();
+
                 try
                 {
                     string query = @"INSERT INTO CarritoDetalle
@@ -102,83 +120,110 @@ namespace Dal
                                 @Cantidad,
                                 @Precio
                             )";
+
                     SqlCommand cmd = new SqlCommand(query, conn, tx);
+
                     cmd.Parameters.AddWithValue("@CarritoId", carritoId);
                     cmd.Parameters.AddWithValue("@ProductoId", productoId);
                     cmd.Parameters.AddWithValue("@Cantidad", cantidad);
                     cmd.Parameters.AddWithValue("@Precio", precioUnitario);
 
-                    cmd.ExecuteNonQuery();
+                    await cmd.ExecuteNonQueryAsync();
 
-                    tx.Commit();
+                    await tx.CommitAsync();
                 }
                 catch
                 {
-                    tx.Rollback();
+                    await tx.RollbackAsync();
                     throw;
                 }
             }
         }
 
-        public void EliminarProducto(int detalleId)
+        public async Task EliminarProducto(int detalleId)
         {
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
                 string query = "DELETE FROM CarritoDetalle WHERE CarritoDetalleId=@Id";
+
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@Id", detalleId);
-                conn.Open();
-                cmd.ExecuteNonQuery();
+
+                await conn.OpenAsync();
+
+                await cmd.ExecuteNonQueryAsync();
             }
         }
 
-        public void VaciarCarrito(int carritoId)
+        public async Task VaciarCarrito(int carritoId)
         {
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
                 string query = "DELETE FROM CarritoDetalle WHERE CarritoId=@Id";
+
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@Id", carritoId);
-                conn.Open();
-                cmd.ExecuteNonQuery();
+
+                await conn.OpenAsync();
+
+                await cmd.ExecuteNonQueryAsync();
             }
         }
 
-        public void Eliminar(int id)
+        public async Task Eliminar(int id)
         {
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
                 string query = "DELETE FROM Carrito WHERE CarritoId=@Id";
+
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@Id", id);
-                conn.Open();
-                cmd.ExecuteNonQuery();
+
+                await conn.OpenAsync();
+
+                await cmd.ExecuteNonQueryAsync();
             }
         }
-        public List<CarritoDetalle> ObtenerDetalles(int carritoId)
+
+        public async Task<List<CarritoDetalle>> ObtenerDetalles(int carritoId)
         {
             List<CarritoDetalle> lista = new List<CarritoDetalle>();
 
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
-                string query = @"SELECT *
-                         FROM CarritoDetalle
-                         WHERE CarritoId = @CarritoId";
+                string query = @"
+                    SELECT 
+                        cd.CarritoDetalleId,
+                        cd.CarritoId,
+                        cd.ProductoId,
+                        p.Nombre,
+                        p.ImagenUrl,
+                        cd.Cantidad,
+                        cd.PrecioUnitario,
+                        cd.Subtotal
+                    FROM CarritoDetalle cd
+                    INNER JOIN Productos p 
+                        ON cd.ProductoId = p.ProductoId
+                    WHERE cd.CarritoId = @CarritoId";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@CarritoId", carritoId);
 
-                conn.Open();
+                await conn.OpenAsync();
 
-                SqlDataReader reader = cmd.ExecuteReader();
+                SqlDataReader reader = await cmd.ExecuteReaderAsync();
 
-                while (reader.Read())
+                while (await reader.ReadAsync())
                 {
                     lista.Add(new CarritoDetalle
                     {
                         CarritoDetalleId = (int)reader["CarritoDetalleId"],
                         CarritoId = (int)reader["CarritoId"],
                         ProductoId = (int)reader["ProductoId"],
+
+                        Nombre = reader["Nombre"].ToString(),
+                        ImagenUrl = reader["ImagenUrl"].ToString(),
+
                         Cantidad = (int)reader["Cantidad"],
                         PrecioUnitario = (decimal)reader["PrecioUnitario"],
                         Subtotal = (decimal)reader["Subtotal"]

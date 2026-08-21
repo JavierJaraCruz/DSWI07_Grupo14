@@ -18,7 +18,7 @@ namespace Entities
         [StringLength(250)]
         public string Descripcion { get; set; }
 
-        
+        public bool Activo { get; set; }
 
     }
 }

@@ -3,36 +3,39 @@ using Entities;
 using Microsoft.AspNetCore.Mvc;
 using Services;
 
-
 namespace Burgos0._2.Controllers
 {
     public class CategoriaController : Controller
     {
-       
-            private readonly CategoriaService _categoriaService;
+        private readonly CategoriaService _categoriaService;
 
         public CategoriaController(CategoriaService categoriaService)
         {
             _categoriaService = categoriaService;
         }
 
-        public IActionResult Index()
+        // LISTAR TODAS LAS CATEGORÍAS PARA EL ADMIN
+        public async Task<IActionResult> Index()
         {
-            var categorias = _categoriaService.ListarCategorias();
+            var categorias =
+                await _categoriaService.ListarCategorias();
 
             var lista = categorias.Select(c => new CategoriaViewModel
             {
                 CategoriaId = c.CategoriaId,
                 Nombre = c.Nombre,
-                Descripcion = c.Descripcion
+                Descripcion = c.Descripcion,
+                Activo = c.Activo
             }).ToList();
 
             return View(lista);
         }
 
-        public IActionResult Detalle(int id)
+        // DETALLE
+        public async Task<IActionResult> Detalle(int id)
         {
-            var categoria = _categoriaService.ObtenerCategoria(id);
+            var categoria =
+                await _categoriaService.ObtenerCategoria(id);
 
             if (categoria == null)
                 return NotFound();
@@ -41,20 +44,26 @@ namespace Burgos0._2.Controllers
             {
                 CategoriaId = categoria.CategoriaId,
                 Nombre = categoria.Nombre,
-                Descripcion = categoria.Descripcion
+                Descripcion = categoria.Descripcion,
+                Activo = categoria.Activo
             };
 
             return View(vm);
         }
 
+        // GET: Crear
         [HttpGet]
         public IActionResult Crear()
         {
-            return View(new CategoriaViewModel());
+            return View(new CategoriaViewModel
+            {
+                Activo = true
+            });
         }
 
+        // POST: Crear
         [HttpPost]
-        public IActionResult Crear(CategoriaViewModel vm)
+        public async Task<IActionResult> Crear(CategoriaViewModel vm)
         {
             if (!ModelState.IsValid)
                 return View(vm);
@@ -62,18 +71,21 @@ namespace Burgos0._2.Controllers
             var categoria = new Categoria
             {
                 Nombre = vm.Nombre,
-                Descripcion = vm.Descripcion
+                Descripcion = vm.Descripcion,
+                Activo = true
             };
 
-            _categoriaService.CrearCategoria(categoria);
+            await _categoriaService.CrearCategoria(categoria);
 
             return RedirectToAction("Index");
         }
 
+        // GET: Editar
         [HttpGet]
-        public IActionResult Editar(int id)
+        public async Task<IActionResult> Editar(int id)
         {
-            var categoria = _categoriaService.ObtenerCategoria(id);
+            var categoria =
+                await _categoriaService.ObtenerCategoria(id);
 
             if (categoria == null)
                 return NotFound();
@@ -82,14 +94,16 @@ namespace Burgos0._2.Controllers
             {
                 CategoriaId = categoria.CategoriaId,
                 Nombre = categoria.Nombre,
-                Descripcion = categoria.Descripcion
+                Descripcion = categoria.Descripcion,
+                Activo = categoria.Activo
             };
 
             return View(vm);
         }
 
+        // POST: Editar
         [HttpPost]
-        public IActionResult Editar(CategoriaViewModel vm)
+        public async Task<IActionResult> Editar(CategoriaViewModel vm)
         {
             if (!ModelState.IsValid)
                 return View(vm);
@@ -98,18 +112,21 @@ namespace Burgos0._2.Controllers
             {
                 CategoriaId = vm.CategoriaId,
                 Nombre = vm.Nombre,
-                Descripcion = vm.Descripcion
+                Descripcion = vm.Descripcion,
+                Activo = vm.Activo
             };
 
-            _categoriaService.ActualizarCategoria(categoria);
+            await _categoriaService.ActualizarCategoria(categoria);
 
             return RedirectToAction("Index");
         }
 
+        // GET: Eliminar
         [HttpGet]
-        public IActionResult Eliminar(int id)
+        public async Task<IActionResult> Eliminar(int id)
         {
-            var categoria = _categoriaService.ObtenerCategoria(id);
+            var categoria =
+                await _categoriaService.ObtenerCategoria(id);
 
             if (categoria == null)
                 return NotFound();
@@ -118,16 +135,18 @@ namespace Burgos0._2.Controllers
             {
                 CategoriaId = categoria.CategoriaId,
                 Nombre = categoria.Nombre,
-                Descripcion = categoria.Descripcion
+                Descripcion = categoria.Descripcion,
+                Activo = categoria.Activo
             };
 
             return View(vm);
         }
 
+        // POST: Eliminación lógica
         [HttpPost]
-        public IActionResult EliminarConfirmado(int CategoriaId)
+        public async Task<IActionResult> EliminarConfirmado(int CategoriaId)
         {
-            _categoriaService.EliminarCategoria(CategoriaId);
+            await _categoriaService.EliminarCategoria(CategoriaId);
 
             return RedirectToAction("Index");
         }

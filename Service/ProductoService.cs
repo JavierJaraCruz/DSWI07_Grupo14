@@ -22,29 +22,37 @@ namespace Services
 
 
 
-        public int CrearProducto(Producto p) => _productoDAL.Insertar(p);
+        public async Task<int> CrearProductoAsync(Producto p)
+            => await _productoDAL.InsertarAsync(p);
 
+        public async Task<Producto> ObtenerProductoAsync(int id)
+            => await _productoDAL.ObtenerPorIdAsync(id);
 
+        public async Task<List<Producto>> ListarProductosAsync()
+            => await _productoDAL.ListarAsync();
 
-        public Producto ObtenerProducto(int id) => _productoDAL.ObtenerPorId(id);
+        public async Task<List<Producto>> ListarTodosLosProductosAsync()
+            => await _productoDAL.ListarTodosAsync();
 
+        public async Task ActualizarProductoAsync(Producto p)
+            => await _productoDAL.ActualizarAsync(p);
 
+        public async Task EliminarProductoAsync(int id)
+            => await _productoDAL.EliminarAsync(id);
 
-        public List<Producto> ListarProductos() => _productoDAL.Listar();
+        public async Task ActualizarStockAsync(
+            int productoId,
+            int cantidad,
+            string tipoMovimiento,
+            string referencia)
+            => await _productoDAL.ActualizarStockAsync(
+                productoId,
+                cantidad,
+                tipoMovimiento,
+                referencia);
 
-
-
-        public void ActualizarProducto(Producto p) => _productoDAL.Actualizar(p);
-
-
-
-        public void EliminarProducto(int id) => _productoDAL.Eliminar(id);
-
-
-
-        public void ActualizarStock(int productoId, int cantidad, string tipoMovimiento, string referencia)
-
-          => _productoDAL.ActualizarStock(productoId, cantidad, tipoMovimiento, referencia);
+        public async Task<Producto> ObtenerProductoAdminAsync(int id)
+            => await _productoDAL.ObtenerPorIdAdminAsync(id);
 
     }
 

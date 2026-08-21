@@ -1,44 +1,53 @@
 ﻿using Dal;
 using Entities;
 using Microsoft.Data.SqlClient;
-using Microsoft.IdentityModel.Protocols;
-using System;
-using System.Configuration;
-
 
 namespace Web.DAL
 {
     public class DashboardDAL
     {
         private readonly ConexionBD _bd;
+
         public DashboardDAL(ConexionBD bd)
         {
             _bd = bd;
         }
 
-        public Dashboard ObtenerMetricas()
+        public async Task<Dashboard> ObtenerMetricas()
         {
             var model = new Dashboard();
 
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
-                conn.Open();
+                await conn.OpenAsync();
 
-                model.CantidadProductos = (int)new SqlCommand(
-                    "SELECT COUNT(*) FROM Productos WHERE Activo = 1", conn
-                ).ExecuteScalar();
+                model.CantidadProductos = Convert.ToInt32(
+                    await new SqlCommand(
+                        "SELECT COUNT(*) FROM Productos WHERE Activo = 1",
+                        conn
+                    ).ExecuteScalarAsync()
+                );
 
-                model.CantidadVentas = (int)new SqlCommand(
-                    "SELECT COUNT(*) FROM Ordenes", conn
-                ).ExecuteScalar();
+                model.CantidadVentas = Convert.ToInt32(
+                    await new SqlCommand(
+                        "SELECT COUNT(*) FROM Ordenes",
+                        conn
+                    ).ExecuteScalarAsync()
+                );
 
-                model.StockBajo = (int)new SqlCommand(
-                    "SELECT COUNT(*) FROM Productos WHERE Stock <= 5 AND Activo = 1", conn
-                ).ExecuteScalar();
+                model.StockBajo = Convert.ToInt32(
+                    await new SqlCommand(
+                        "SELECT COUNT(*) FROM Productos WHERE Stock <= 5 AND Activo = 1",
+                        conn
+                    ).ExecuteScalarAsync()
+                );
 
-                model.TotalVentasMonto = Convert.ToDecimal(new SqlCommand(
-                    "SELECT ISNULL(SUM(Monto),0) FROM Pagos", conn
-                ).ExecuteScalar());
+                model.TotalVentasMonto = Convert.ToDecimal(
+                    await new SqlCommand(
+                        "SELECT ISNULL(SUM(Monto), 0) FROM Pagos",
+                        conn
+                    ).ExecuteScalarAsync()
+                );
             }
 
             return model;

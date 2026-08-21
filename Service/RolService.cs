@@ -17,10 +17,13 @@ namespace Services
             _rolDAL = rolDAL;
         }
 
-        public int CrearRol(Rol r) => _rolDAL.Insertar(r);
+        public async Task<int> CrearRolAsync(Rol r)
+            => await _rolDAL.InsertarAsync(r);
 
-        public List<Rol> ListarRoles() => _rolDAL.Listar();
+        public async Task<List<Rol>> ListarRolesAsync()
+            => await _rolDAL.ListarAsync();
 
-        public void EliminarRol(int id) => _rolDAL.Eliminar(id);
+        public async Task EliminarRolAsync(int id)
+            => await _rolDAL.EliminarAsync(id);
     }
 }

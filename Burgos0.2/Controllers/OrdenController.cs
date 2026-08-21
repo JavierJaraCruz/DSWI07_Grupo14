@@ -6,12 +6,10 @@ using Services;
 
 namespace Burgos0._2.Controllers
 {
-
     [ValidarSesion]
     public class OrdenController : Controller
     {
-      
-           private readonly OrdenService _ordenService;
+        private readonly OrdenService _ordenService;
         private readonly UsuarioService _usuarioService;
 
         public OrdenController(
@@ -23,11 +21,14 @@ namespace Burgos0._2.Controllers
         }
 
         // GET: Orden
-        public IActionResult Index(int pagina = 1)
+        public async Task<IActionResult> Index(int pagina = 1)
         {
             int tamano = 10;
 
-            var ordenes = _ordenService.ListarOrdenes(pagina, tamano);
+            var ordenes = await _ordenService.ListarOrdenesAsync(
+                pagina,
+                tamano
+            );
 
             var lista = ordenes.Select(o => new OrdenViewModel
             {
@@ -39,7 +40,7 @@ namespace Burgos0._2.Controllers
                 Estado = o.Estado
             }).ToList();
 
-            int totalOrdenes = _ordenService.ContarOrdenes();
+            int totalOrdenes = await _ordenService.ContarOrdenesAsync();
 
             int totalPaginas = (int)Math.Ceiling(
                 (double)totalOrdenes / tamano
@@ -52,11 +53,13 @@ namespace Burgos0._2.Controllers
         }
 
         // GET: Orden/Crear
-        public IActionResult Crear()
+        public async Task<IActionResult> Crear()
         {
             var model = new OrdenViewModel();
 
-            model.Usuarios = _usuarioService.ListarUsuarios()
+            var usuarios = await _usuarioService.ListarUsuariosAsync();
+
+            model.Usuarios = usuarios
                 .Select(u => new SelectListItem
                 {
                     Value = u.UsuarioId.ToString(),
@@ -72,30 +75,35 @@ namespace Burgos0._2.Controllers
         // POST: Orden/Crear
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Crear(OrdenViewModel model)
+        public async Task<IActionResult> Crear(OrdenViewModel model)
         {
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            List<OrdenDetalle> detalles = model.Detalles.Select(d => new OrdenDetalle
-            {
-                ProductoId = d.ProductoId,
-                Cantidad = d.Cantidad,
-                PrecioUnitario = d.PrecioUnitario,
-                Subtotal = d.Subtotal
-            }).ToList();
+            List<OrdenDetalle> detalles = model.Detalles
+                .Select(d => new OrdenDetalle
+                {
+                    ProductoId = d.ProductoId,
+                    Cantidad = d.Cantidad,
+                    PrecioUnitario = d.PrecioUnitario,
+                    Subtotal = d.Subtotal
+                })
+                .ToList();
 
-            _ordenService.CrearOrden(model.UsuarioId, detalles);
+            await _ordenService.CrearOrdenAsync(
+                model.UsuarioId,
+                detalles
+            );
 
             return RedirectToAction("Index");
         }
 
         // GET: Orden/Detalle/5
-        public IActionResult Detalle(int id)
+        public async Task<IActionResult> Detalle(int id)
         {
-            var orden = _ordenService.ObtenerPorId(id);
+            var orden = await _ordenService.ObtenerPorIdAsync(id);
 
             if (orden == null)
                 return NotFound();

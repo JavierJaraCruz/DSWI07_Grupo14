@@ -17,14 +17,19 @@ namespace Services
             _proveedorDAL = proveedorDAL;
         }
 
-        public int CrearProveedor(Proveedor p) => _proveedorDAL.Insertar(p);
+        public async Task<int> CrearProveedorAsync(Proveedor p)
+            => await _proveedorDAL.InsertarAsync(p);
 
-        public List<Proveedor> ListarProveedores() => _proveedorDAL.Listar();
+        public async Task<List<Proveedor>> ListarProveedoresAsync()
+            => await _proveedorDAL.ListarAsync();
 
-        public Proveedor ObtenerProveedor(int id) => _proveedorDAL.ObtenerProveedor((int)id);
+        public async Task<Proveedor> ObtenerProveedorAsync(int id)
+            => await _proveedorDAL.ObtenerProveedorAsync(id);
 
-        public void ActualizarProveedor(Proveedor p) => _proveedorDAL.Actualizar(p);
+        public async Task ActualizarProveedorAsync(Proveedor p)
+            => await _proveedorDAL.ActualizarAsync(p);
 
-        public void EliminarProveedor(int id) => _proveedorDAL.Eliminar(id);
+        public async Task EliminarProveedorAsync(int id)
+            => await _proveedorDAL.EliminarAsync(id);
     }
 }

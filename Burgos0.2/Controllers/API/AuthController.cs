@@ -1,5 +1,4 @@
 ﻿using Entities;
-
 using Microsoft.AspNetCore.Mvc;
 using Services;
 using Burgos0._2.Models.ApiModel;
@@ -19,13 +18,13 @@ namespace Burgos0._2.Controllers.API
 
         // POST: api/auth/login
         [HttpPost("login")]
-        public IActionResult Login(LoginRequest request)
+        public async Task<IActionResult> Login(LoginRequest request)
         {
             if (request == null)
                 return BadRequest();
 
             Usuario usuario =
-                _usuarioService.ObtenerUsuarioPorNombre(
+                await _usuarioService.ObtenerUsuarioPorNombreAsync(
                     request.NombreUsuario);
 
             if (usuario == null)
@@ -34,6 +33,16 @@ namespace Burgos0._2.Controllers.API
                 {
                     Success = false,
                     Message = "Usuario no encontrado"
+                });
+            }
+
+            // Validar si el usuario está activo
+            if (!usuario.Estado)
+            {
+                return Ok(new
+                {
+                    Success = false,
+                    Message = "Tu cuenta se encuentra inactiva. Contacta al administrador."
                 });
             }
 
@@ -52,26 +61,29 @@ namespace Burgos0._2.Controllers.API
                 });
             }
 
+            string nombreRol =
+                await _usuarioService.ObtenerNombreRolPorUsuarioAsync(
+                    usuario.UsuarioId);
+
             return Ok(new
             {
                 Success = true,
                 UsuarioId = usuario.UsuarioId,
                 NombreUsuario = usuario.NombreUsuario,
-                Rol = _usuarioService.ObtenerNombreRolPorUsuario(
-                    usuario.UsuarioId)
+                Rol = nombreRol
             });
         }
 
         // POST: api/auth/cambiar-password
         [HttpPost("cambiar-password")]
-        public IActionResult CambiarPassword(
+        public async Task<IActionResult> CambiarPassword(
             CambiarPasswordRequest request)
         {
             if (request == null)
                 return BadRequest();
 
             Usuario usuario =
-                _usuarioService.ObtenerUsuarioPorNombre(
+                await _usuarioService.ObtenerUsuarioPorNombreAsync(
                     request.NombreUsuario);
 
             if (usuario == null)
@@ -108,7 +120,7 @@ namespace Burgos0._2.Controllers.API
             usuario.Salt = nuevoSalt;
             usuario.PasswordHash = nuevoHash;
 
-            _usuarioService.ActualizarUsuario(usuario);
+            await _usuarioService.ActualizarUsuarioAsync(usuario);
 
             return Ok(new
             {

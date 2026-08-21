@@ -19,7 +19,7 @@ namespace DAL
             _bd = bd;
         }
 
-        public List<Orden> ListarOrdenes(int pagina, int tamano)
+        public async Task<List<Orden>> ListarOrdenesAsync(int pagina, int tamano)
         {
             var lista = new List<Orden>();
 
@@ -47,11 +47,11 @@ namespace DAL
                 cmd.Parameters.AddWithValue("@Offset", offset);
                 cmd.Parameters.AddWithValue("@Tamano", tamano);
 
-                conn.Open();
+                await conn.OpenAsync();
 
-                SqlDataReader reader = cmd.ExecuteReader();
+                SqlDataReader reader = await cmd.ExecuteReaderAsync();
 
-                while (reader.Read())
+                while (await reader.ReadAsync())
                 {
                     lista.Add(new Orden
                     {
@@ -67,7 +67,7 @@ namespace DAL
 
             return lista;
         }
-        public List<Orden> ListarOrdenesDe(int usuarioId)
+        public async Task<List<Orden>> ListarOrdenesDeAsync(int usuarioId)
         {
             var lista = new List<Orden>();
 
@@ -91,11 +91,11 @@ namespace DAL
 
                 cmd.Parameters.AddWithValue("@UsuarioId", usuarioId);
 
-                conn.Open();
+                await conn.OpenAsync();
 
-                SqlDataReader reader = cmd.ExecuteReader();
+                SqlDataReader reader = await cmd.ExecuteReaderAsync();
 
-                while (reader.Read())
+                while (await reader.ReadAsync())
                 {
                     lista.Add(new Orden
                     {
@@ -112,17 +112,23 @@ namespace DAL
             return lista;
         }
 
-        public Orden ObtenerPorId(int id)
+        public async Task<Orden> ObtenerPorIdAsync(int id)
         {
             Orden orden = null;
+
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
                 string query = "SELECT * FROM Ordenes WHERE OrdenId=@id";
+
                 SqlCommand cmd = new SqlCommand(query, conn);
+
                 cmd.Parameters.AddWithValue("@id", id);
-                conn.Open();
-                SqlDataReader reader = cmd.ExecuteReader();
-                if (reader.Read())
+
+                await conn.OpenAsync();
+
+                SqlDataReader reader = await cmd.ExecuteReaderAsync();
+
+                if (await reader.ReadAsync())
                 {
                     orden = new Orden
                     {
@@ -134,16 +140,19 @@ namespace DAL
                     };
                 }
             }
+
             return orden;
         }
 
-        public int InsertarOrden(int usuarioId, List<OrdenDetalle> detalles)
+        public async Task<int> InsertarOrdenAsync(
+    int usuarioId,
+    List<OrdenDetalle> detalles)
         {
             int ordenId;
 
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
-                conn.Open();
+                await conn.OpenAsync();
 
                 SqlTransaction tx = conn.BeginTransaction();
 
@@ -188,10 +197,10 @@ namespace DAL
                         total
                     );
 
-                    ordenId =
-                        Convert.ToInt32(
-                            cmdOrden.ExecuteScalar()
-                        );
+                    object resultado =
+                        await cmdOrden.ExecuteScalarAsync();
+
+                    ordenId = Convert.ToInt32(resultado);
 
                     foreach (var d in detalles)
                     {
@@ -234,7 +243,7 @@ namespace DAL
                             d.PrecioUnitario
                         );
 
-                        cmdDet.ExecuteNonQuery();
+                        await cmdDet.ExecuteNonQueryAsync();
                     }
 
                     tx.Commit();
@@ -249,19 +258,26 @@ namespace DAL
             return ordenId;
         }
 
-        public void ActualizarEstado(int ordenId, string estado)
+        public async Task ActualizarEstadoAsync(int ordenId, string estado)
         {
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
-                string query = "UPDATE Ordenes SET Estado=@Estado WHERE OrdenId=@Id";
+                string query = @"
+            UPDATE Ordenes
+            SET Estado=@Estado
+            WHERE OrdenId=@Id";
+
                 SqlCommand cmd = new SqlCommand(query, conn);
+
                 cmd.Parameters.AddWithValue("@Estado", estado);
                 cmd.Parameters.AddWithValue("@Id", ordenId);
-                conn.Open();
-                cmd.ExecuteNonQuery();
+
+                await conn.OpenAsync();
+
+                await cmd.ExecuteNonQueryAsync();
             }
         }
-        public int ContarOrdenes()
+        public async Task<int> ContarOrdenesAsync()
         {
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
@@ -269,9 +285,11 @@ namespace DAL
 
                 SqlCommand cmd = new SqlCommand(query, conn);
 
-                conn.Open();
+                await conn.OpenAsync();
 
-                return Convert.ToInt32(cmd.ExecuteScalar());
+                object resultado = await cmd.ExecuteScalarAsync();
+
+                return Convert.ToInt32(resultado);
             }
         }
     }

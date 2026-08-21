@@ -12,5 +12,7 @@ namespace Burgos0._2.Models
 
         [StringLength(250)]
         public string Descripcion { get; set; }
+
+        public bool Activo { get; set; }
     }
 }

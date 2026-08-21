@@ -18,9 +18,11 @@ namespace Services
             _inventarioDAL = inventarioDAL;
         }
 
-        public int RegistrarMovimiento(InventarioMovimiento mov) => _inventarioDAL.InsertarMovimiento(mov);
+        public async Task<int> RegistrarMovimientoAsync(InventarioMovimiento mov)
+             => await _inventarioDAL.InsertarMovimientoAsync(mov);
 
-        public List<InventarioMovimiento> ListarMovimientos(int productoId) => _inventarioDAL.ListarMovimientos(productoId);
+        public async Task<List<InventarioMovimiento>> ListarMovimientosAsync(int productoId)
+            => await _inventarioDAL.ListarMovimientosAsync(productoId);
 
     }
 }

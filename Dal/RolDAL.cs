@@ -19,48 +19,51 @@ namespace DAL
             _bd = bd;
         }
 
-        public List<Rol> Listar()
+        public async Task<List<Rol>> ListarAsync()
         {
             var lista = new List<Rol>();
+
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
                 string query = "SELECT * FROM Roles";
+
                 SqlCommand cmd = new SqlCommand(query, conn);
 
-                conn.Open();
+                await conn.OpenAsync();
 
-                SqlDataReader reader = cmd.ExecuteReader();
-                while (reader.Read())
+                SqlDataReader reader = await cmd.ExecuteReaderAsync();
+
+                while (await reader.ReadAsync())
                 {
                     lista.Add(new Rol
                     {
                         RolId = (int)reader["RolId"],
                         NombreRol = reader["NombreRol"].ToString()
-
                     });
-
                 }
-
             }
-
 
             return lista;
         }
-        public Rol ObtenerPorId(int id)
-
+        public async Task<Rol> ObtenerPorIdAsync(int id)
         {
             Rol rol = null;
 
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
                 string query = "SELECT * FROM Roles WHERE RolId = @id";
+
                 SqlCommand cmd = new SqlCommand(query, conn);
+
                 cmd.Parameters.AddWithValue("@id", id);
-                conn.Open();
-                SqlDataReader reader = cmd.ExecuteReader();
-                if (reader.Read())
+
+                await conn.OpenAsync();
+
+                SqlDataReader reader = await cmd.ExecuteReaderAsync();
+
+                if (await reader.ReadAsync())
                 {
-                    rol = new Rol()
+                    rol = new Rol
                     {
                         RolId = (int)reader["RolId"],
                         NombreRol = reader["NombreRol"].ToString()
@@ -68,51 +71,60 @@ namespace DAL
                 }
             }
 
-
-
             return rol;
         }
 
-        public int Insertar(Rol r)
+        public async Task<int> InsertarAsync(Rol r)
         {
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
-                string query = @"INSERT INTO Roles (NombreRol) VALUES (
-                    @NombreRol);
-                    SELECT SCOPE_IDENTITY();";
+                string query = @"INSERT INTO Roles (NombreRol)
+                         VALUES (@NombreRol);
+                         SELECT SCOPE_IDENTITY();";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
 
                 cmd.Parameters.AddWithValue("@NombreRol", r.NombreRol);
-                conn.Open();
 
-                return Convert.ToInt32(cmd.ExecuteScalar());
+                await conn.OpenAsync();
+
+                object resultado = await cmd.ExecuteScalarAsync();
+
+                return Convert.ToInt32(resultado);
             }
         }
 
-        public void Actualizar(Rol rol)
+        public async Task ActualizarAsync(Rol rol)
         {
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
+                string query = @"UPDATE Roles
+                         SET NombreRol = @NomR
+                         WHERE RolId = @Id";
 
-                string query = "UPDATE Roles SET NombreRol=@NomR WHERE RolId=@Id";
                 SqlCommand cmd = new SqlCommand(query, conn);
 
                 cmd.Parameters.AddWithValue("@NomR", rol.NombreRol);
                 cmd.Parameters.AddWithValue("@Id", rol.RolId);
-                conn.Open();
-                cmd.ExecuteNonQuery();
+
+                await conn.OpenAsync();
+
+                await cmd.ExecuteNonQueryAsync();
             }
         }
-        public void Eliminar(int id)
+        public async Task EliminarAsync(int id)
         {
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
-                string query = "DELETE FROM Roles WHERE RolId=@Id";
+                string query = "DELETE FROM Roles WHERE RolId = @Id";
+
                 SqlCommand cmd = new SqlCommand(query, conn);
+
                 cmd.Parameters.AddWithValue("@Id", id);
-                conn.Open();
-                cmd.ExecuteNonQuery();
+
+                await conn.OpenAsync();
+
+                await cmd.ExecuteNonQueryAsync();
             }
         }
     }

@@ -17,27 +17,30 @@ namespace Services
             _ordenDAL = ordenDAL;
         }
 
-        public int CrearOrden(int usuarioId, List<OrdenDetalle> detalles)
-            => _ordenDAL.InsertarOrden(usuarioId, detalles);
+        public async Task<int> CrearOrdenAsync(
+           int usuarioId,
+           List<OrdenDetalle> detalles)
+           => await _ordenDAL.InsertarOrdenAsync(usuarioId, detalles);
 
-        public List<Orden> ListarOrdenes(int pagina, int tamano)
-        {
-            return _ordenDAL.ListarOrdenes(pagina, tamano);
-        }
-        public List<Orden> ListarOrdenesDe(int usuarioId)
-        {
-            return _ordenDAL.ListarOrdenesDe(usuarioId);
-        }
+        public async Task<List<Orden>> ListarOrdenesAsync(
+            int pagina,
+            int tamano)
+            => await _ordenDAL.ListarOrdenesAsync(pagina, tamano);
 
-        public int ContarOrdenes()
-        {
-            return _ordenDAL.ContarOrdenes();
-        }
+        public async Task<List<Orden>> ListarOrdenesDeAsync(
+            int usuarioId)
+            => await _ordenDAL.ListarOrdenesDeAsync(usuarioId);
 
-        public Orden ObtenerPorId(int id)
-        {
-            return _ordenDAL.ObtenerPorId(id);
-        }
+        public async Task<int> ContarOrdenesAsync()
+            => await _ordenDAL.ContarOrdenesAsync();
+
+        public async Task<Orden> ObtenerPorIdAsync(int id)
+            => await _ordenDAL.ObtenerPorIdAsync(id);
+
+        public async Task ActualizarEstadoAsync(
+                int ordenId,
+                string estado)
+                => await _ordenDAL.ActualizarEstadoAsync(ordenId, estado);
 
     }
 }

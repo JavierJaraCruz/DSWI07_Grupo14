@@ -17,26 +17,31 @@ namespace Services
             _usuarioDAL = usuarioDAL;
         }
 
-        public int CrearUsuario(Usuario u) => _usuarioDAL.Insertar(u);
+        public async Task<int> CrearUsuarioAsync(Usuario u)
+    => await _usuarioDAL.InsertarAsync(u);
 
-        public Usuario ObtenerUsuario(int id) => _usuarioDAL.ObtenerPorId(id);
+        public async Task<Usuario> ObtenerUsuarioAsync(int id)
+            => await _usuarioDAL.ObtenerPorIdAsync(id);
 
-        public List<Usuario> ListarUsuarios() => _usuarioDAL.Listar();
+        public async Task<List<Usuario>> ListarUsuariosAsync()
+            => await _usuarioDAL.ListarAsync();
 
-        public void ActualizarUsuario(Usuario u) => _usuarioDAL.Actualizar(u);
+        public async Task ActualizarUsuarioAsync(Usuario u)
+            => await _usuarioDAL.ActualizarAsync(u);
 
-        public void EliminarUsuario(int id) => _usuarioDAL.Eliminar(id);
+        public async Task EliminarUsuarioAsync(int id)
+            => await _usuarioDAL.EliminarAsync(id);
 
-        public Usuario ObtenerUsuarioPorNombre(string nombreUsuario) => _usuarioDAL.ObtenerPorNombreUsuario(nombreUsuario);
+        public async Task<Usuario> ObtenerUsuarioPorNombreAsync(string nombreUsuario)
+            => await _usuarioDAL.ObtenerPorNombreUsuarioAsync(nombreUsuario);
 
-        public void AsignarRolAUsuario(int usuarioId, int rolId) => _usuarioDAL.AsignarRol(usuarioId, rolId);
+        public async Task AsignarRolAUsuarioAsync(int usuarioId, int rolId)
+            => await _usuarioDAL.AsignarRolAsync(usuarioId, rolId);
 
-        public string ObtenerNombreRolPorUsuario(int usuarioId)
-        {
-     
-            return _usuarioDAL.ObtenerNombreRolPorUsuario(usuarioId);
-        }
+        public async Task<string> ObtenerNombreRolPorUsuarioAsync(int usuarioId)
+            => await _usuarioDAL.ObtenerNombreRolPorUsuarioAsync(usuarioId);
 
-        public List<Rol> ListarRoles() => _usuarioDAL.ListarRoles();
+        public async Task<List<Rol>> ListarRolesAsync()
+            => await _usuarioDAL.ListarRolesAsync();
     }
 }

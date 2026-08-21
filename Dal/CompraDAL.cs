@@ -19,16 +19,21 @@ namespace DAL
             _bd = bd;
         }
 
-        public List<CompraProveedor> ListarCompras()
+        public async Task<List<CompraProveedor>> ListarCompras()
         {
             var lista = new List<CompraProveedor>();
+
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
                 string query = "SELECT * FROM ComprasProveedor";
+
                 SqlCommand cmd = new SqlCommand(query, conn);
-                conn.Open();
-                SqlDataReader reader = cmd.ExecuteReader();
-                while (reader.Read())
+
+                await conn.OpenAsync();
+
+                SqlDataReader reader = await cmd.ExecuteReaderAsync();
+
+                while (await reader.ReadAsync())
                 {
                     lista.Add(new CompraProveedor
                     {
@@ -40,20 +45,27 @@ namespace DAL
                     });
                 }
             }
+
             return lista;
         }
 
-        public CompraProveedor ObtenerPorId(int id)
+        public async Task<CompraProveedor> ObtenerPorId(int id)
         {
             CompraProveedor compra = null;
+
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
                 string query = "SELECT * FROM ComprasProveedor WHERE CompraId=@id";
+
                 SqlCommand cmd = new SqlCommand(query, conn);
+
                 cmd.Parameters.AddWithValue("@id", id);
-                conn.Open();
-                SqlDataReader reader = cmd.ExecuteReader();
-                if (reader.Read())
+
+                await conn.OpenAsync();
+
+                SqlDataReader reader = await cmd.ExecuteReaderAsync();
+
+                if (await reader.ReadAsync())
                 {
                     compra = new CompraProveedor
                     {
@@ -65,64 +77,148 @@ namespace DAL
                     };
                 }
             }
+
             return compra;
         }
 
-        public int InsertarCompra(int proveedorId, List<CompraDetalle> detalles)
+        public async Task<int> InsertarCompra(
+            int proveedorId,
+            List<CompraDetalle> detalles)
         {
             int compraId;
+
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
-                conn.Open();
-                SqlTransaction tx = conn.BeginTransaction();
+                await conn.OpenAsync();
+
+                SqlTransaction tx = (SqlTransaction)await conn.BeginTransactionAsync();
 
                 try
                 {
                     decimal total = 0;
-                    foreach (var d in detalles) total += d.Subtotal;
-
-                    string queryCompra = @"INSERT INTO ComprasProveedor (ProveedorId,FechaCompra,Total,Estado)
-                                           VALUES (@Prov,GETDATE(),@Total,'Recibido');
-                                           SELECT SCOPE_IDENTITY();";
-                    SqlCommand cmdCompra = new SqlCommand(queryCompra, conn, tx);
-                    cmdCompra.Parameters.AddWithValue("@Prov", proveedorId);
-                    cmdCompra.Parameters.AddWithValue("@Total", total);
-                    compraId = Convert.ToInt32(cmdCompra.ExecuteScalar());
 
                     foreach (var d in detalles)
                     {
-                        string queryDet = @"INSERT INTO CompraDetalle (CompraId,ProductoId,Cantidad,PrecioUnitario,Subtotal)
-                                            VALUES (@CompraId,@Prod,@Cant,@Precio,@Subtotal)";
-                        SqlCommand cmdDet = new SqlCommand(queryDet, conn, tx);
-                        cmdDet.Parameters.AddWithValue("@CompraId", compraId);
-                        cmdDet.Parameters.AddWithValue("@Prod", d.ProductoId);
-                        cmdDet.Parameters.AddWithValue("@Cant", d.Cantidad);
-                        cmdDet.Parameters.AddWithValue("@Precio", d.PrecioUnitario);
-                        cmdDet.Parameters.AddWithValue("@Subtotal", d.Subtotal);
-                        cmdDet.ExecuteNonQuery();
+                        total += d.Subtotal;
                     }
 
-                    tx.Commit();
+                    string queryCompra = @"
+                        INSERT INTO ComprasProveedor
+                        (
+                            ProveedorId,
+                            FechaCompra,
+                            Total,
+                            Estado
+                        )
+                        VALUES
+                        (
+                            @Prov,
+                            GETDATE(),
+                            @Total,
+                            'Recibido'
+                        );
+
+                        SELECT SCOPE_IDENTITY();";
+
+                    SqlCommand cmdCompra =
+                        new SqlCommand(queryCompra, conn, tx);
+
+                    cmdCompra.Parameters.AddWithValue(
+                        "@Prov",
+                        proveedorId
+                    );
+
+                    cmdCompra.Parameters.AddWithValue(
+                        "@Total",
+                        total
+                    );
+
+                    compraId = Convert.ToInt32(
+                        await cmdCompra.ExecuteScalarAsync()
+                    );
+
+                    foreach (var d in detalles)
+                    {
+                        string queryDet = @"
+                            INSERT INTO CompraDetalle
+                            (
+                                CompraId,
+                                ProductoId,
+                                Cantidad,
+                                PrecioUnitario,
+                                Subtotal
+                            )
+                            VALUES
+                            (
+                                @CompraId,
+                                @Prod,
+                                @Cant,
+                                @Precio,
+                                @Subtotal
+                            )";
+
+                        SqlCommand cmdDet =
+                            new SqlCommand(queryDet, conn, tx);
+
+                        cmdDet.Parameters.AddWithValue(
+                            "@CompraId",
+                            compraId
+                        );
+
+                        cmdDet.Parameters.AddWithValue(
+                            "@Prod",
+                            d.ProductoId
+                        );
+
+                        cmdDet.Parameters.AddWithValue(
+                            "@Cant",
+                            d.Cantidad
+                        );
+
+                        cmdDet.Parameters.AddWithValue(
+                            "@Precio",
+                            d.PrecioUnitario
+                        );
+
+                        cmdDet.Parameters.AddWithValue(
+                            "@Subtotal",
+                            d.Subtotal
+                        );
+
+                        await cmdDet.ExecuteNonQueryAsync();
+                    }
+
+                    await tx.CommitAsync();
                 }
                 catch
                 {
-                    tx.Rollback();
+                    await tx.RollbackAsync();
                     throw;
                 }
             }
+
             return compraId;
         }
 
-        public void ActualizarEstado(int compraId, string estado)
+        public async Task ActualizarEstado(
+            int compraId,
+            string estado)
         {
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
-                string query = "UPDATE ComprasProveedor SET Estado=@Estado WHERE CompraId=@Id";
+                string query = @"
+                    UPDATE ComprasProveedor
+                    SET Estado=@Estado
+                    WHERE CompraId=@Id";
+
                 SqlCommand cmd = new SqlCommand(query, conn);
+
                 cmd.Parameters.AddWithValue("@Estado", estado);
                 cmd.Parameters.AddWithValue("@Id", compraId);
-                conn.Open();
-                cmd.ExecuteNonQuery();
+
+                await conn.OpenAsync();
+
+                await cmd.ExecuteNonQueryAsync();
             }
         }
     }

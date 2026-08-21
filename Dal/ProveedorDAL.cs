@@ -18,16 +18,21 @@ namespace DAL
             _bd = bd;
         }
 
-        public List<Proveedor> Listar()
+        public async Task<List<Proveedor>> ListarAsync()
         {
             var lista = new List<Proveedor>();
+
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
                 string query = "SELECT * FROM Proveedores";
+
                 SqlCommand cmd = new SqlCommand(query, conn);
-                conn.Open();
-                SqlDataReader reader = cmd.ExecuteReader();
-                while (reader.Read())
+
+                await conn.OpenAsync();
+
+                SqlDataReader reader = await cmd.ExecuteReaderAsync();
+
+                while (await reader.ReadAsync())
                 {
                     lista.Add(new Proveedor
                     {
@@ -39,20 +44,27 @@ namespace DAL
                     });
                 }
             }
+
             return lista;
         }
 
-        public Proveedor ObtenerProveedor(int id)
+        public async Task<Proveedor> ObtenerProveedorAsync(int id)
         {
             Proveedor proveedor = null;
+
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
                 string query = "SELECT * FROM Proveedores WHERE ProveedorId=@id";
+
                 SqlCommand cmd = new SqlCommand(query, conn);
+
                 cmd.Parameters.AddWithValue("@id", id);
-                conn.Open();
-                SqlDataReader reader = cmd.ExecuteReader();
-                if (reader.Read())
+
+                await conn.OpenAsync();
+
+                SqlDataReader reader = await cmd.ExecuteReaderAsync();
+
+                if (await reader.ReadAsync())
                 {
                     proveedor = new Proveedor
                     {
@@ -64,27 +76,42 @@ namespace DAL
                     };
                 }
             }
+
             return proveedor;
         }
 
-        public int Insertar(Proveedor p)
+        public async Task<int> InsertarAsync(Proveedor p)
         {
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
-                conn.Open();
+                await conn.OpenAsync();
+
                 SqlTransaction tx = conn.BeginTransaction();
+
                 try
                 {
-                    string query = @"INSERT INTO Proveedores (Nombre,Email,Telefono,Direccion)
-                             VALUES (@Nombre,@Email,@Tel,@Dir); SELECT SCOPE_IDENTITY();";
+                    string query = @"INSERT INTO Proveedores 
+                             (Nombre,Email,Telefono,Direccion)
+                             VALUES 
+                             (@Nombre,@Email,@Tel,@Dir);
+                             SELECT SCOPE_IDENTITY();";
+
                     SqlCommand cmd = new SqlCommand(query, conn, tx);
+
                     cmd.Parameters.AddWithValue("@Nombre", p.Nombre);
-                    cmd.Parameters.AddWithValue("@Email", p.Email ?? (object)DBNull.Value);
-                    cmd.Parameters.AddWithValue("@Tel", p.Telefono ?? (object)DBNull.Value);
-                    cmd.Parameters.AddWithValue("@Dir", p.Direccion ?? (object)DBNull.Value);
-                    int id = Convert.ToInt32(cmd.ExecuteScalar());
+                    cmd.Parameters.AddWithValue("@Email",
+                        p.Email ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Tel",
+                        p.Telefono ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Dir",
+                        p.Direccion ?? (object)DBNull.Value);
+
+                    object resultado = await cmd.ExecuteScalarAsync();
+
+                    int id = Convert.ToInt32(resultado);
 
                     tx.Commit();
+
                     return id;
                 }
                 catch
@@ -95,32 +122,47 @@ namespace DAL
             }
         }
 
-        public void Actualizar(Proveedor p)
+        public async Task ActualizarAsync(Proveedor p)
         {
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
-                string query = @"UPDATE Proveedores SET Nombre=@Nombre,Email=@Email,Telefono=@Tel,Direccion=@Dir
-                                 WHERE ProveedorId=@Id";
+                string query = @"UPDATE Proveedores 
+                         SET Nombre=@Nombre,
+                             Email=@Email,
+                             Telefono=@Tel,
+                             Direccion=@Dir
+                         WHERE ProveedorId=@Id";
+
                 SqlCommand cmd = new SqlCommand(query, conn);
+
                 cmd.Parameters.AddWithValue("@Nombre", p.Nombre);
-                cmd.Parameters.AddWithValue("@Email", p.Email ?? (object)DBNull.Value);
-                cmd.Parameters.AddWithValue("@Tel", p.Telefono ?? (object)DBNull.Value);
-                cmd.Parameters.AddWithValue("@Dir", p.Direccion ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@Email",
+                    p.Email ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@Tel",
+                    p.Telefono ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@Dir",
+                    p.Direccion ?? (object)DBNull.Value);
                 cmd.Parameters.AddWithValue("@Id", p.ProveedorId);
-                conn.Open();
-                cmd.ExecuteNonQuery();
+
+                await conn.OpenAsync();
+
+                await cmd.ExecuteNonQueryAsync();
             }
         }
 
-        public void Eliminar(int id)
+        public async Task EliminarAsync(int id)
         {
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
                 string query = "DELETE FROM Proveedores WHERE ProveedorId=@Id";
+
                 SqlCommand cmd = new SqlCommand(query, conn);
+
                 cmd.Parameters.AddWithValue("@Id", id);
-                conn.Open();
-                cmd.ExecuteNonQuery();
+
+                await conn.OpenAsync();
+
+                await cmd.ExecuteNonQueryAsync();
             }
         }
     }

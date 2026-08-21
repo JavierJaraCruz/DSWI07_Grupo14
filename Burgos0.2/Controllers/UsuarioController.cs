@@ -17,31 +17,33 @@ namespace Burgos0._2.Controllers
         }
 
         // GET: Usuario
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var usuarios = _usuarioService.ListarUsuarios();
+            var usuarios = await _usuarioService.ListarUsuariosAsync();
+
             return View(usuarios);
         }
 
         // GET: Usuario/Detalle/5
-        public IActionResult Detalle(int id)
+        public async Task<IActionResult> Detalle(int id)
         {
-            var usuario = _usuarioService.ObtenerUsuario(id);
+            var usuario = await _usuarioService.ObtenerUsuarioAsync(id);
 
             if (usuario == null)
                 return NotFound();
 
-            ViewBag.RolNombre = _usuarioService.ObtenerNombreRolPorUsuario(id);
+            ViewBag.RolNombre =
+                await _usuarioService.ObtenerNombreRolPorUsuarioAsync(id);
 
             return View(usuario);
         }
 
         // GET: Usuario/Crear
         [HttpGet]
-        public IActionResult Crear()
+        public async Task<IActionResult> Crear()
         {
             ViewBag.Roles = new SelectList(
-                _usuarioService.ListarRoles(),
+                await _usuarioService.ListarRolesAsync(),
                 "RolId",
                 "NombreRol"
             );
@@ -52,7 +54,7 @@ namespace Burgos0._2.Controllers
         // POST: Usuario/Crear
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Crear(UsuarioEditViewModel model)
+        public async Task<IActionResult> Crear(UsuarioEditViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -73,9 +75,10 @@ namespace Burgos0._2.Controllers
                     FechaRegistro = DateTime.Now
                 };
 
-                int nuevoUsuarioId = _usuarioService.CrearUsuario(usuario);
+                int nuevoUsuarioId =
+                    await _usuarioService.CrearUsuarioAsync(usuario);
 
-                _usuarioService.AsignarRolAUsuario(
+                await _usuarioService.AsignarRolAUsuarioAsync(
                     nuevoUsuarioId,
                     model.RolId
                 );
@@ -87,7 +90,7 @@ namespace Burgos0._2.Controllers
             }
 
             ViewBag.Roles = new SelectList(
-                _usuarioService.ListarRoles(),
+                await _usuarioService.ListarRolesAsync(),
                 "RolId",
                 "NombreRol"
             );
@@ -97,9 +100,9 @@ namespace Burgos0._2.Controllers
 
         // GET: Usuario/Editar/5
         [HttpGet]
-        public IActionResult Editar(int id)
+        public async Task<IActionResult> Editar(int id)
         {
-            var usuario = _usuarioService.ObtenerUsuario(id);
+            var usuario = await _usuarioService.ObtenerUsuarioAsync(id);
 
             if (usuario == null)
                 return NotFound();
@@ -118,11 +121,12 @@ namespace Burgos0._2.Controllers
         // POST: Usuario/Editar/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Editar(UsuarioEditViewModel model)
+        public async Task<IActionResult> Editar(UsuarioEditViewModel model)
         {
             if (ModelState.IsValid)
             {
-                var usuario = _usuarioService.ObtenerUsuario(model.UsuarioId);
+                var usuario =
+                    await _usuarioService.ObtenerUsuarioAsync(model.UsuarioId);
 
                 if (usuario == null)
                     return NotFound();
@@ -131,7 +135,7 @@ namespace Burgos0._2.Controllers
                 usuario.Email = model.Email;
                 usuario.Estado = model.Estado;
 
-                _usuarioService.ActualizarUsuario(usuario);
+                await _usuarioService.ActualizarUsuarioAsync(usuario);
 
                 TempData["SuccessMessage"] =
                     "Usuario actualizado correctamente.";
@@ -144,12 +148,12 @@ namespace Burgos0._2.Controllers
 
         // GET: Usuario/Eliminar/5
         [HttpGet]
-        public IActionResult Eliminar(int id)
+        public async Task<IActionResult> Eliminar(int id)
         {
             if (id <= 0)
                 return BadRequest();
 
-            var usuario = _usuarioService.ObtenerUsuario(id);
+            var usuario = await _usuarioService.ObtenerUsuarioAsync(id);
 
             if (usuario == null)
                 return NotFound();
@@ -160,14 +164,14 @@ namespace Burgos0._2.Controllers
         // POST: Usuario/Eliminar
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult EliminarConfirmado(int id)
+        public async Task<IActionResult> EliminarConfirmado(int id)
         {
-            var usuario = _usuarioService.ObtenerUsuario(id);
+            var usuario = await _usuarioService.ObtenerUsuarioAsync(id);
 
             if (usuario == null)
                 return NotFound();
 
-            _usuarioService.EliminarUsuario(id);
+            await _usuarioService.EliminarUsuarioAsync(id);
 
             TempData["SuccessMessage"] =
                 "Usuario eliminado correctamente.";

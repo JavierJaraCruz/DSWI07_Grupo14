@@ -24,18 +24,18 @@ namespace Burgos0._2.Controllers.API
 
         // POST: api/ordenes/comprar/5
         [HttpPost("comprar/{usuarioId}")]
-        public IActionResult Comprar(int usuarioId)
+        public async Task<IActionResult> Comprar(int usuarioId)
         {
             try
             {
                 var carrito =
-                    _carritoService.ObtenerPorUsuario(usuarioId);
+                    await _carritoService.ObtenerPorUsuario(usuarioId);
 
                 if (carrito == null)
                     return BadRequest("No existe carrito");
 
                 var detallesCarrito =
-                    _carritoService.ObtenerDetalles(
+                    await _carritoService.ObtenerDetalles(
                         carrito.CarritoId);
 
                 if (detallesCarrito.Count == 0)
@@ -54,7 +54,7 @@ namespace Burgos0._2.Controllers.API
                         Subtotal = item.Subtotal
                     });
 
-                    _productoService.ActualizarStock(
+                    await _productoService.ActualizarStockAsync(
                         item.ProductoId,
                         item.Cantidad,
                         "SALIDA",
@@ -63,16 +63,16 @@ namespace Burgos0._2.Controllers.API
                 }
 
                 int ordenId =
-                    _ordenService.CrearOrden(
+                    await _ordenService.CrearOrdenAsync(
                         usuarioId,
                         detallesOrden
                     );
 
-                _carritoService.VaciarCarrito(
+                await _carritoService.VaciarCarrito(
                     carrito.CarritoId
                 );
 
-                _carritoService.EliminarCarrito(
+                await _carritoService.EliminarCarrito(
                     carrito.CarritoId
                 );
 
@@ -94,19 +94,19 @@ namespace Burgos0._2.Controllers.API
 
         // GET: api/ordenes
         [HttpGet("usuario/{usuarioId}")]
-        public IActionResult ListarPorUsuario(int usuarioId)
+        public async Task<IActionResult> ListarPorUsuario(int usuarioId)
         {
             return Ok(
-                _ordenService.ListarOrdenesDe(usuarioId)
+                await _ordenService.ListarOrdenesDeAsync(usuarioId)
             );
         }
 
         // GET: api/ordenes/5
         [HttpGet("{id:int}")]
-        public IActionResult Obtener(int id)
+        public async Task<IActionResult> Obtener(int id)
         {
             var orden =
-                _ordenService.ObtenerPorId(id);
+                await _ordenService.ObtenerPorIdAsync(id);
 
             if (orden == null)
                 return NotFound();

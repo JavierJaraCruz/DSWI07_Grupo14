@@ -12,7 +12,6 @@ namespace Burgos0._2.Controllers
         private readonly ProductoService _productoService;
         private readonly CategoriaService _categoriaService;
 
-
         public ProductoController(
             ProductoService productoService,
             CategoriaService categoriaService)
@@ -21,10 +20,11 @@ namespace Burgos0._2.Controllers
             _categoriaService = categoriaService;
         }
 
-
-        public IActionResult Index()
+        // GET: Producto
+        public async Task<IActionResult> Index()
         {
-            var productos = _productoService.ListarProductos();
+            var productos =
+                await _productoService.ListarTodosLosProductosAsync();
 
             var lista = productos.Select(p => new ProductoViewModel
             {
@@ -42,14 +42,15 @@ namespace Burgos0._2.Controllers
             return View(lista);
         }
 
-
-        public IActionResult Detalle(int id)
+        // GET: Producto/Detalle/5
+        public async Task<IActionResult> Detalle(int id)
         {
-            var producto = _productoService.ObtenerProducto(id);
+            // Para el administrador: permite ver productos activos e inactivos
+            var producto =
+                await _productoService.ObtenerProductoAdminAsync(id);
 
             if (producto == null)
                 return NotFound();
-
 
             var vm = new ProductoViewModel
             {
@@ -67,14 +68,14 @@ namespace Burgos0._2.Controllers
             return View(vm);
         }
 
-
-
+        // GET: Producto/Crear
         [HttpGet]
-        public IActionResult Crear()
+        public async Task<IActionResult> Crear()
         {
             var vm = new ProductoViewModel();
 
-            vm.Categorias = _categoriaService.ListarCategorias()
+            vm.Categorias =
+                (await _categoriaService.ListarSoloActivos())
                 .Select(c => new SelectListItem
                 {
                     Value = c.CategoriaId.ToString(),
@@ -84,14 +85,15 @@ namespace Burgos0._2.Controllers
             return View(vm);
         }
 
-
-
+        // POST: Producto/Crear
         [HttpPost]
-        public IActionResult Crear(ProductoViewModel vm)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Crear(ProductoViewModel vm)
         {
             if (!ModelState.IsValid)
             {
-                vm.Categorias = _categoriaService.ListarCategorias()
+                vm.Categorias =
+                    (await _categoriaService.ListarSoloActivos())
                     .Select(c => new SelectListItem
                     {
                         Value = c.CategoriaId.ToString(),
@@ -100,7 +102,6 @@ namespace Burgos0._2.Controllers
 
                 return View(vm);
             }
-
 
             var producto = new Producto
             {
@@ -113,22 +114,21 @@ namespace Burgos0._2.Controllers
                 Activo = true
             };
 
-
-            _productoService.CrearProducto(producto);
+            await _productoService.CrearProductoAsync(producto);
 
             return RedirectToAction(nameof(Index));
         }
 
-
-
+        // GET: Producto/Editar/5
         [HttpGet]
-        public IActionResult Editar(int id)
+        public async Task<IActionResult> Editar(int id)
         {
-            var producto = _productoService.ObtenerProducto(id);
+            // Para el administrador: permite editar productos activos e inactivos
+            var producto =
+                await _productoService.ObtenerProductoAdminAsync(id);
 
             if (producto == null)
                 return NotFound();
-
 
             var vm = new ProductoViewModel
             {
@@ -143,24 +143,24 @@ namespace Burgos0._2.Controllers
                 Activo = producto.Activo
             };
 
-
-            vm.Categorias = _categoriaService.ListarCategorias()
+            // Para editar permitimos ver todas las categorías
+            vm.Categorias =
+                (await _categoriaService.ListarCategorias())
                 .Select(c => new SelectListItem
                 {
                     Value = c.CategoriaId.ToString(),
                     Text = c.Nombre
                 });
 
-
             return View(vm);
         }
 
-
-
+        // POST: Producto/Editar
         [HttpPost]
-        public IActionResult Editar(ProductoViewModel vm)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Editar(ProductoViewModel vm)
         {
-            Console.WriteLine("ENTRÓ AL EDITAR POST");
+            Console.WriteLine("ENTRO AL EDITAR POST");
 
             foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
             {
@@ -169,7 +169,8 @@ namespace Burgos0._2.Controllers
 
             if (!ModelState.IsValid)
             {
-                vm.Categorias = _categoriaService.ListarCategorias()
+                vm.Categorias =
+                    (await _categoriaService.ListarSoloActivos())
                     .Select(c => new SelectListItem
                     {
                         Value = c.CategoriaId.ToString(),
@@ -178,7 +179,6 @@ namespace Burgos0._2.Controllers
 
                 return View(vm);
             }
-
 
             var producto = new Producto
             {
@@ -192,22 +192,20 @@ namespace Burgos0._2.Controllers
                 Activo = vm.Activo
             };
 
-
-            _productoService.ActualizarProducto(producto);
+            await _productoService.ActualizarProductoAsync(producto);
 
             return RedirectToAction(nameof(Index));
         }
 
-
-
+        // GET: Producto/Eliminar/5
         [HttpGet]
-        public IActionResult Eliminar(int id)
+        public async Task<IActionResult> Eliminar(int id)
         {
-            var producto = _productoService.ObtenerProducto(id);
+            var producto =
+                await _productoService.ObtenerProductoAdminAsync(id);
 
             if (producto == null)
                 return NotFound();
-
 
             var vm = new ProductoViewModel
             {
@@ -222,16 +220,15 @@ namespace Burgos0._2.Controllers
                 Activo = producto.Activo
             };
 
-
             return View(vm);
         }
 
-
-
+        // POST: Producto/EliminarConfirmado
         [HttpPost]
-        public IActionResult EliminarConfirmado(int ProductoId)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EliminarConfirmado(int ProductoId)
         {
-            _productoService.EliminarProducto(ProductoId);
+            await _productoService.EliminarProductoAsync(ProductoId);
 
             return RedirectToAction(nameof(Index));
         }

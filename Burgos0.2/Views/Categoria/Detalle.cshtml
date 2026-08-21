@@ -25,6 +25,18 @@
         <dt>Descripción</dt>
         <dd>@Model.Descripcion</dd>
 
+        <dt>Estado</dt>
+        <dd>
+            @if (Model.Activo)
+            {
+                <span>Activo</span>
+            }
+            else
+            {
+                <span>Inactivo</span>
+            }
+        </dd>
+
     </dl>
 
     <p>

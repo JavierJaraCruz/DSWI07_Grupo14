@@ -1,12 +1,8 @@
 ﻿using Dal;
 using Entities;
-using Microsoft.IdentityModel.Protocols;
+using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
-using Microsoft.Data.SqlClient;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DAL
@@ -14,21 +10,28 @@ namespace DAL
     public class InventarioDAL
     {
         private readonly ConexionBD _bd;
+
         public InventarioDAL(ConexionBD bd)
         {
             _bd = bd;
         }
 
-        public List<InventarioMovimiento> ListarMovimientos()
+
+        public async Task<List<InventarioMovimiento>> ListarMovimientosAsync()
         {
             var lista = new List<InventarioMovimiento>();
+
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
                 string query = "SELECT * FROM InventarioMovimiento";
+
                 SqlCommand cmd = new SqlCommand(query, conn);
-                conn.Open();
-                SqlDataReader reader = cmd.ExecuteReader();
-                while (reader.Read())
+
+                await conn.OpenAsync();
+
+                SqlDataReader reader = await cmd.ExecuteReaderAsync();
+
+                while (await reader.ReadAsync())
                 {
                     lista.Add(new InventarioMovimiento
                     {
@@ -41,20 +44,34 @@ namespace DAL
                     });
                 }
             }
+
             return lista;
         }
 
-        public List<InventarioMovimiento> ListarMovimientos(int productoId)
+
+        public async Task<List<InventarioMovimiento>> ListarMovimientosAsync(int productoId)
         {
             var lista = new List<InventarioMovimiento>();
+
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
-                string query = "SELECT * FROM InventarioMovimiento WHERE ProductoId=@ProductoId";
+                string query = @"
+                    SELECT *
+                    FROM InventarioMovimiento
+                    WHERE ProductoId = @ProductoId";
+
                 SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@ProductoId", productoId);
-                conn.Open();
-                SqlDataReader reader = cmd.ExecuteReader();
-                while (reader.Read())
+
+                cmd.Parameters.AddWithValue(
+                    "@ProductoId",
+                    productoId
+                );
+
+                await conn.OpenAsync();
+
+                SqlDataReader reader = await cmd.ExecuteReaderAsync();
+
+                while (await reader.ReadAsync())
                 {
                     lista.Add(new InventarioMovimiento
                     {
@@ -67,20 +84,31 @@ namespace DAL
                     });
                 }
             }
+
             return lista;
         }
 
-        public InventarioMovimiento ObtenerPorId(int id)
+
+        public async Task<InventarioMovimiento> ObtenerPorIdAsync(int id)
         {
             InventarioMovimiento mov = null;
+
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
-                string query = "SELECT * FROM InventarioMovimiento WHERE MovimientoId=@id";
+                string query = @"
+                    SELECT *
+                    FROM InventarioMovimiento
+                    WHERE MovimientoId = @id";
+
                 SqlCommand cmd = new SqlCommand(query, conn);
+
                 cmd.Parameters.AddWithValue("@id", id);
-                conn.Open();
-                SqlDataReader reader = cmd.ExecuteReader();
-                if (reader.Read())
+
+                await conn.OpenAsync();
+
+                SqlDataReader reader = await cmd.ExecuteReaderAsync();
+
+                if (await reader.ReadAsync())
                 {
                     mov = new InventarioMovimiento
                     {
@@ -93,28 +121,58 @@ namespace DAL
                     };
                 }
             }
+
             return mov;
         }
 
-        public int InsertarMovimiento(InventarioMovimiento mov)
+
+        public async Task<int> InsertarMovimientoAsync(InventarioMovimiento mov)
         {
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
-                conn.Open();
+                await conn.OpenAsync();
+
                 SqlTransaction tx = conn.BeginTransaction();
+
                 try
                 {
-                    string query = @"INSERT INTO InventarioMovimiento (ProductoId,TipoMovimiento,Cantidad,FechaMovimiento,Referencia)
-                             VALUES (@Prod,@Tipo,@Cant,@Fecha,@Ref); SELECT SCOPE_IDENTITY();";
+                    string query = @"
+                        INSERT INTO InventarioMovimiento
+                        (
+                            ProductoId,
+                            TipoMovimiento,
+                            Cantidad,
+                            FechaMovimiento,
+                            Referencia
+                        )
+                        VALUES
+                        (
+                            @Prod,
+                            @Tipo,
+                            @Cant,
+                            @Fecha,
+                            @Ref
+                        );
+
+                        SELECT SCOPE_IDENTITY();";
+
                     SqlCommand cmd = new SqlCommand(query, conn, tx);
+
                     cmd.Parameters.AddWithValue("@Prod", mov.ProductoId);
                     cmd.Parameters.AddWithValue("@Tipo", mov.TipoMovimiento);
                     cmd.Parameters.AddWithValue("@Cant", mov.Cantidad);
                     cmd.Parameters.AddWithValue("@Fecha", mov.FechaMovimiento);
-                    cmd.Parameters.AddWithValue("@Ref", mov.Referencia ?? (object)DBNull.Value);
-                    int id = Convert.ToInt32(cmd.ExecuteScalar());
+                    cmd.Parameters.AddWithValue(
+                        "@Ref",
+                        mov.Referencia ?? (object)DBNull.Value
+                    );
+
+                    int id = Convert.ToInt32(
+                        await cmd.ExecuteScalarAsync()
+                    );
 
                     tx.Commit();
+
                     return id;
                 }
                 catch
@@ -126,26 +184,37 @@ namespace DAL
         }
 
 
-        // KARDEX
-
-        public List<KardexItem> ObtenerKardexPorProducto(int productoId)
+        // KARDEX BORRARLO NO ESTA EN USO
+        public async Task<List<KardexItem>> ObtenerKardexPorProductoAsync(int productoId)
         {
             var lista = new List<KardexItem>();
+
             int saldo = 0;
 
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
-                string query = @"SELECT FechaMovimiento, TipoMovimiento, Cantidad, Referencia
-                         FROM InventarioMovimiento
-                         WHERE ProductoId=@Prod
-                         ORDER BY FechaMovimiento ASC";
+                string query = @"
+                    SELECT
+                        FechaMovimiento,
+                        TipoMovimiento,
+                        Cantidad,
+                        Referencia
+                    FROM InventarioMovimiento
+                    WHERE ProductoId = @Prod
+                    ORDER BY FechaMovimiento ASC";
+
                 SqlCommand cmd = new SqlCommand(query, conn);
+
                 cmd.Parameters.AddWithValue("@Prod", productoId);
-                conn.Open();
-                SqlDataReader reader = cmd.ExecuteReader();
-                while (reader.Read())
+
+                await conn.OpenAsync();
+
+                SqlDataReader reader = await cmd.ExecuteReaderAsync();
+
+                while (await reader.ReadAsync())
                 {
                     string tipo = reader["TipoMovimiento"].ToString();
+
                     int cantidad = (int)reader["Cantidad"];
 
                     if (tipo == "Entrada")
@@ -163,27 +232,56 @@ namespace DAL
                     });
                 }
             }
+
             return lista;
         }
 
-        public void InsertarKardex(KardexItem item)
+
+        public async Task InsertarKardexAsync(KardexItem item)
         {
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
-                conn.Open();
+                await conn.OpenAsync();
+
                 SqlTransaction tx = conn.BeginTransaction();
+
                 try
                 {
-                    string query = @"INSERT INTO InventarioMovimiento (ProductoId,Fecha,TipoMovimiento,Cantidad,Referencia,Saldo)
-                             VALUES (@Prod,@Fecha,@Tipo,@Cant,@Ref,@Saldo)";
+                    string query = @"
+                        INSERT INTO InventarioMovimiento
+                        (
+                            ProductoId,
+                            Fecha,
+                            TipoMovimiento,
+                            Cantidad,
+                            Referencia,
+                            Saldo
+                        )
+                        VALUES
+                        (
+                            @Prod,
+                            @Fecha,
+                            @Tipo,
+                            @Cant,
+                            @Ref,
+                            @Saldo
+                        )";
+
                     SqlCommand cmd = new SqlCommand(query, conn, tx);
+
                     cmd.Parameters.AddWithValue("@Prod", item.ProductoId);
                     cmd.Parameters.AddWithValue("@Fecha", item.Fecha);
                     cmd.Parameters.AddWithValue("@Tipo", item.TipoMovimiento);
                     cmd.Parameters.AddWithValue("@Cant", item.Cantidad);
-                    cmd.Parameters.AddWithValue("@Ref", item.Referencia ?? (object)DBNull.Value);
+
+                    cmd.Parameters.AddWithValue(
+                        "@Ref",
+                        item.Referencia ?? (object)DBNull.Value
+                    );
+
                     cmd.Parameters.AddWithValue("@Saldo", item.Saldo);
-                    cmd.ExecuteNonQuery();
+
+                    await cmd.ExecuteNonQueryAsync();
 
                     tx.Commit();
                 }
@@ -194,6 +292,5 @@ namespace DAL
                 }
             }
         }
-
     }
 }

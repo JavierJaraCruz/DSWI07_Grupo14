@@ -13,34 +13,35 @@ public class CarritoService
     }
 
 
-    public Carrito? ObtenerPorUsuario(int usuarioId)
-        => _carritoDAL.ObtenerPorUsuario(usuarioId);
+    public async Task<Carrito?> ObtenerPorUsuario(int usuarioId)
+              => await _carritoDAL.ObtenerPorUsuario(usuarioId);
 
+    public async Task<Carrito?> ObtenerCarrito(int id)
+        => await _carritoDAL.ObtenerCarrito(id);
 
-    public Carrito? ObtenerCarrito(int id)
-        => _carritoDAL.ObtenerCarrito(id);
+    public async Task<int> CrearCarrito(int usuarioId)
+        => await _carritoDAL.CrearCarrito(usuarioId);
 
+    public async Task AgregarProducto(
+        int carritoId,
+        int productoId,
+        int cantidad,
+        decimal precioUnitario)
+        => await _carritoDAL.AgregarProducto(
+            carritoId,
+            productoId,
+            cantidad,
+            precioUnitario);
 
-    public int CrearCarrito(int usuarioId)
-        => _carritoDAL.CrearCarrito(usuarioId);
+    public async Task EliminarProducto(int detalleId)
+        => await _carritoDAL.EliminarProducto(detalleId);
 
+    public async Task EliminarCarrito(int id)
+        => await _carritoDAL.Eliminar(id);
 
-    public void AgregarProducto(int carritoId, int productoId, int cantidad, decimal precioUnitario)
-        => _carritoDAL.AgregarProducto(carritoId, productoId, cantidad, precioUnitario);
+    public async Task<List<CarritoDetalle>> ObtenerDetalles(int carritoId)
+        => await _carritoDAL.ObtenerDetalles(carritoId);
 
-
-    public void EliminarProducto(int detalleId)
-        => _carritoDAL.EliminarProducto(detalleId);
-
-
-    public void EliminarCarrito(int id)
-        => _carritoDAL.Eliminar(id);
-
-
-    public List<CarritoDetalle> ObtenerDetalles(int carritoId)
-        => _carritoDAL.ObtenerDetalles(carritoId);
-
-
-    public void VaciarCarrito(int carritoId)
-        => _carritoDAL.VaciarCarrito(carritoId);
+    public async Task VaciarCarrito(int carritoId)
+        => await _carritoDAL.VaciarCarrito(carritoId);
 }

@@ -14,10 +14,9 @@ namespace Web.Services
             _dashboardDAL = dashboardDAL;
         }
 
-        public Dashboard ObtenerDashboard()
+        public async Task<Dashboard> ObtenerDashboard()
         {
-           
-            return _dashboardDAL.ObtenerMetricas();
+            return await _dashboardDAL.ObtenerMetricas();
         }
 
         public string ObtenerMensajeEstado(Dashboard data)

@@ -15,9 +15,9 @@ namespace Burgos0._2.Controllers
             _dashboardService = dashboardService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var data = _dashboardService.ObtenerDashboard();
+            var data = await _dashboardService.ObtenerDashboard();
 
             var vm = new DashboardViewModel
             {

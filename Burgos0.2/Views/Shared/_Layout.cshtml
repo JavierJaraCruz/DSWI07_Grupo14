@@ -39,6 +39,13 @@
 
         <ul class="sidebar-menu">
 
+            <li class="@(controllerActual == "Home" ? "active" : "")">
+                <a href="@Url.Action("Index", "Home")">
+                    🏠
+                    <span>Inicio</span>
+                </a>
+            </li>
+
             <li class="@(controllerActual == "Orden" ? "active" : "")">
                 <a href="@Url.Action("Index", "Orden")">
                     🛒
@@ -71,6 +78,13 @@
                 <a href="@Url.Action("Index", "Usuario")">
                     👥
                     <span>Usuarios</span>
+                </a>
+            </li>
+            
+            <li>
+                <a href="@Url.Action("Logout", "Login")">
+                    🚪
+                    <span>Cerrar sesión</span>
                 </a>
             </li>
 

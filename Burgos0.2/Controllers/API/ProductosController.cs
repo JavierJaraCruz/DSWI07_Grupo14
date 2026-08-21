@@ -4,7 +4,6 @@ using Services;
 
 namespace Burgos0._2.Controllers.API
 {
-
     [ApiController]
     [Route("api/[controller]")]
     public class ProductosController : ControllerBase
@@ -18,17 +17,18 @@ namespace Burgos0._2.Controllers.API
 
         // GET: api/productos
         [HttpGet]
-        public ActionResult<List<Producto>> ListarProductos()
+        public async Task<ActionResult<List<Producto>>> ListarProductos()
         {
-            var productos = _productoService.ListarProductos();
+            var productos = await _productoService.ListarProductosAsync();
+
             return Ok(productos);
         }
 
         // GET: api/productos/5
         [HttpGet("{id}")]
-        public ActionResult<Producto> ObtenerProducto(int id)
+        public async Task<ActionResult<Producto>> ObtenerProducto(int id)
         {
-            var producto = _productoService.ObtenerProducto(id);
+            var producto = await _productoService.ObtenerProductoAsync(id);
 
             if (producto == null)
                 return NotFound();

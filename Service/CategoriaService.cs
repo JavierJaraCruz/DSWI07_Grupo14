@@ -19,14 +19,25 @@ namespace Services
         {
             _categoriaDAL = categoriaDAL;
         }
-        public int CrearCategoria(Categoria c) => _categoriaDAL.Insertar(c);
+        public async Task<int> CrearCategoria(Categoria c)
+             => await _categoriaDAL.Insertar(c);
 
-        public Categoria ObtenerCategoria(int id) => _categoriaDAL.ObtenerPorId(id);
+        public async Task<Categoria> ObtenerCategoria(int id)
+            => await _categoriaDAL.ObtenerPorId(id);
 
-        public List<Categoria> ListarCategorias() => _categoriaDAL.Listar();
+        public async Task<List<Categoria>> ListarCategorias()
+            => await _categoriaDAL.Listar();
 
-        public void ActualizarCategoria(Categoria c) => _categoriaDAL.Actualizar(c);
+        public async Task ActivarCategoria(int id)
+            => await _categoriaDAL.Activar(id);
 
-        public void EliminarCategoria(int id) => _categoriaDAL.Eliminar(id);
+        public async Task<List<Categoria>> ListarSoloActivos()
+            => await _categoriaDAL.ListarSoloActivos();
+
+        public async Task ActualizarCategoria(Categoria c)
+            => await _categoriaDAL.Actualizar(c);
+
+        public async Task EliminarCategoria(int id)
+            => await _categoriaDAL.Eliminar(id);
     }
 }

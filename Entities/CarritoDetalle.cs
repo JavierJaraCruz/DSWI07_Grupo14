@@ -27,5 +27,9 @@ namespace Entities
         [Range(0.01, 999999)]
         public decimal Subtotal { get; set; }
 
+
+        public string Nombre { get; set; }
+        public string ImagenUrl { get; set; }
+
     }
 }

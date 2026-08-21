@@ -17,10 +17,13 @@ namespace Services
             _compraDAL = compraDAL;
         }
 
-        public int CrearCompra(int proveedorId, List<CompraDetalle> detalles)
-            => _compraDAL.InsertarCompra(proveedorId, detalles);
+        public async Task<int> CrearCompra(
+            int proveedorId,
+            List<CompraDetalle> detalles)
+            => await _compraDAL.InsertarCompra(proveedorId, detalles);
 
-        public List<CompraProveedor> ListarCompras() => _compraDAL.ListarCompras();
+        public async Task<List<CompraProveedor>> ListarCompras()
+            => await _compraDAL.ListarCompras();
 
     }
 }

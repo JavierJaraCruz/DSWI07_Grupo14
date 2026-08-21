@@ -19,24 +19,28 @@ namespace DAL
             _bd = bd;
         }
 
-        public List<Categoria> Listar()
+        public async Task<List<Categoria>> Listar()
         {
             var lista = new List<Categoria>();
 
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
                 string query = "SELECT * FROM Categorias";
+
                 SqlCommand cmd = new SqlCommand(query, conn);
-                conn.Open();
-                SqlDataReader reader = cmd.ExecuteReader();
-                while (reader.Read())
+
+                await conn.OpenAsync();
+
+                SqlDataReader reader = await cmd.ExecuteReaderAsync();
+
+                while (await reader.ReadAsync())
                 {
                     lista.Add(new Categoria
                     {
                         CategoriaId = (int)reader["CategoriaId"],
                         Nombre = reader["Nombre"].ToString(),
                         Descripcion = reader["Descripcion"].ToString(),
-
+                        Activo = (bool)reader["Activo"]
                     });
                 }
             }
@@ -44,78 +48,145 @@ namespace DAL
             return lista;
         }
 
-        public Categoria ObtenerPorId(int id)
+        public async Task Activar(int id)
         {
-            Categoria categoria = null;
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
-                string query = "SELECT * FROM Categorias WHERE CategoriaId = @id";
+                string query = @"UPDATE Categorias
+                                 SET Activo = 1
+                                 WHERE CategoriaId = @Id";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+
+                cmd.Parameters.AddWithValue("@Id", id);
+
+                await conn.OpenAsync();
+
+                await cmd.ExecuteNonQueryAsync();
+            }
+        }
+
+        public async Task<List<Categoria>> ListarSoloActivos()
+        {
+            var lista = new List<Categoria>();
+
+            using (SqlConnection conn = _bd.ObtenerConexion())
+            {
+                string query = @"SELECT CategoriaId, Nombre, Descripcion, Activo
+                                 FROM Categorias
+                                 WHERE Activo = 1";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+
+                await conn.OpenAsync();
+
+                SqlDataReader reader = await cmd.ExecuteReaderAsync();
+
+                while (await reader.ReadAsync())
+                {
+                    lista.Add(new Categoria
+                    {
+                        CategoriaId = (int)reader["CategoriaId"],
+                        Nombre = reader["Nombre"].ToString(),
+                        Descripcion = reader["Descripcion"].ToString(),
+                        Activo = (bool)reader["Activo"]
+                    });
+                }
+            }
+
+            return lista;
+        }
+
+        public async Task<Categoria> ObtenerPorId(int id)
+        {
+            Categoria categoria = null;
+
+            using (SqlConnection conn = _bd.ObtenerConexion())
+            {
+                string query = @"SELECT CategoriaId, Nombre, Descripcion, Activo
+                                 FROM Categorias
+                                 WHERE CategoriaId = @id";
+
                 SqlCommand cmd = new SqlCommand(query, conn);
 
                 cmd.Parameters.AddWithValue("@id", id);
-                conn.Open();
-                SqlDataReader reader = cmd.ExecuteReader();
-                if (reader.Read())
+
+                await conn.OpenAsync();
+
+                SqlDataReader reader = await cmd.ExecuteReaderAsync();
+
+                if (await reader.ReadAsync())
                 {
                     categoria = new Categoria
                     {
                         CategoriaId = (int)reader["CategoriaId"],
                         Nombre = reader["Nombre"].ToString(),
                         Descripcion = reader["Descripcion"].ToString(),
-
+                        Activo = (bool)reader["Activo"]
                     };
                 }
-
             }
-
-
 
             return categoria;
         }
-        public int Insertar(Categoria categoria)
+
+        public async Task<int> Insertar(Categoria categoria)
         {
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
                 string query = @"INSERT INTO Categorias(Nombre,Descripcion)
-                                  VALUES(@Nombre,@Descripcion);
-                                     SELECT SCOPE_IDENTITY();";
+                                 VALUES(@Nombre,@Descripcion);
+                                 SELECT SCOPE_IDENTITY();";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
+
                 cmd.Parameters.AddWithValue("@Nombre", categoria.Nombre);
                 cmd.Parameters.AddWithValue("@Descripcion", categoria.Descripcion);
 
+                await conn.OpenAsync();
 
-                conn.Open();
-
-                return Convert.ToInt32(cmd.ExecuteScalar());
+                return Convert.ToInt32(await cmd.ExecuteScalarAsync());
             }
         }
 
-        public void Actualizar(Categoria categoria)
+        public async Task Actualizar(Categoria categoria)
         {
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
-                string query = @"UPDATE Categorias SET Nombre=@Nombre,Descripcion=@Descripcion
-                         WHERE CategoriaId=@Id";
+                string query = @"UPDATE Categorias 
+                                 SET Nombre = @Nombre,
+                                     Descripcion = @Descripcion,
+                                     Activo = @Activo
+                                 WHERE CategoriaId = @Id";
+
                 SqlCommand cmd = new SqlCommand(query, conn);
+
                 cmd.Parameters.AddWithValue("@Nombre", categoria.Nombre);
                 cmd.Parameters.AddWithValue("@Descripcion", categoria.Descripcion);
-
+                cmd.Parameters.AddWithValue("@Activo", categoria.Activo);
                 cmd.Parameters.AddWithValue("@Id", categoria.CategoriaId);
-                conn.Open();
-                cmd.ExecuteNonQuery();
-            }
 
+                await conn.OpenAsync();
+
+                await cmd.ExecuteNonQueryAsync();
+            }
         }
-        public void Eliminar(int id)
+
+        public async Task Eliminar(int id)
         {
             using (SqlConnection conn = _bd.ObtenerConexion())
             {
-                string query = "DELETE FROM Categorias WHERE CategoriaId=@Id";
+                string query = @"UPDATE Categorias
+                                 SET Activo = 0
+                                 WHERE CategoriaId = @Id";
+
                 SqlCommand cmd = new SqlCommand(query, conn);
+
                 cmd.Parameters.AddWithValue("@Id", id);
-                conn.Open();
-                cmd.ExecuteNonQuery();
+
+                await conn.OpenAsync();
+
+                await cmd.ExecuteNonQueryAsync();
             }
         }
     }

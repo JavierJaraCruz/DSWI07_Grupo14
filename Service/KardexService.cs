@@ -1,9 +1,6 @@
 ﻿using DAL;
 using Entities;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Services
@@ -17,15 +14,15 @@ namespace Services
             _inventarioDAL = inventarioDAL;
         }
 
-        public List<KardexItem> ObtenerKardex(int productoId)
+        public async Task<List<KardexItem>> ObtenerKardex(int productoId)
         {
-            return _inventarioDAL.ObtenerKardexPorProducto(productoId);
+            return await _inventarioDAL.ObtenerKardexPorProductoAsync(productoId);
         }
 
+        public async Task InsertarKardex(KardexItem item)
+            => await _inventarioDAL.InsertarKardexAsync(item);
 
-        public void InsertarKardex(KardexItem item) => _inventarioDAL.InsertarKardex(item);
-
-        public List<KardexItem> ObtenerKardexPorProducto(int productoId) => _inventarioDAL.ObtenerKardexPorProducto(productoId);
+        public async Task<List<KardexItem>> ObtenerKardexPorProducto(int productoId)
+            => await _inventarioDAL.ObtenerKardexPorProductoAsync(productoId);
     }
 }
-
